@@ -25,7 +25,7 @@ The module creates the following infrastructure:
 
 ```hcl
 module "event_sourcing_app" {
-  source = "github.com/your-org/event-sourcing-infra-aws/terraform"
+  source = "github.com/ambarltd/event-sourcing-infra-aws/terraform"
   
   # CRITICAL: 2-Step Deployment Process
   # STEP 1: Deploy with nameserver_records_completed = false (default)
@@ -58,7 +58,7 @@ module "event_sourcing_app" {
   }
 
   # Required Domain Configuration
-  domain                      = "example.com"
+  domain                     = "example.com"
   frontend_domain            = "app.example.com"
   backend_application_domain = "api.example.com"
   from_email                 = "notifications@example.com"
@@ -72,7 +72,7 @@ module "event_sourcing_app" {
   backend_image  = "a6c58d7df3ea76c5463161eae6c201659e397ece"
 
   # Optional GitHub Configuration (with defaults shown)
-  github_org                        = "your-github-org"  # default: "ambarltd"
+  github_org                        = "ambarltd"         # default: "ambarltd"
   github_frontend_repo_prod_branch  = "main"             # default: "main"
   github_backend_repo_prod_branch   = "production"       # default: "main"
 
