@@ -1,13 +1,14 @@
 # Domain Module
 module "domain" {
-  source = "domain"
+  source = "./domain"
 
   domain_name = var.domain
 }
 
 # Email Module
 module "email" {
-  source = "email"
+  count = nameserver_records_completed
+  source = "./email"
 
   domain_name       = var.domain
   route53_zone_name = module.domain.zone_name
@@ -19,7 +20,8 @@ module "email" {
 
 # Network Module
 module "network" {
-  source = "network"
+  count = nameserver_records_completed
+  source = "./network"
   region = var.region
 
   # gets converted to regiona, regionb, etc. E.G. us-east-1a, us-east-1b...
@@ -34,7 +36,8 @@ module "network" {
 
 # Event Store Module
 module "event_store" {
-  source = "event_store"
+  count = nameserver_records_completed
+  source = "./event_store"
 
   vpc_id              = module.network.vpc_id
   database_subnet_ids = module.network.public_subnet_ids
@@ -44,9 +47,10 @@ module "event_store" {
 
 # Blob Storage Module
 module "object_storage" {
-  source = "object_storage"
+  count = nameserver_records_completed
+  source = "./object_storage"
 
-  frontend_cors_domain = ""
+  frontend_cors_domain = var.frontend_domain
 
   # These configs get defaulted to these values, but we are bubbling them up to be explicit / for visibility
   enable_versioning                  = true
@@ -56,7 +60,8 @@ module "object_storage" {
 
 # Image Registry Modules
 module "backend_image_registry" {
-  source = "image_registry"
+  count = nameserver_records_completed
+  source = "./image_registry"
 
   github_organization_with_read_write_access = var.github_org
   github_repository_with_read_write_access   = var.github_backend_repo
@@ -65,7 +70,8 @@ module "backend_image_registry" {
 }
 
 module "frontend_image_registry" {
-  source = "image_registry"
+  count = nameserver_records_completed
+  source = "./image_registry"
 
   github_organization_with_read_write_access = var.github_org
   github_repository_with_read_write_access   = var.github_frontend_repo
@@ -74,7 +80,8 @@ module "frontend_image_registry" {
 }
 
 module "projection_store" {
-  source = "projection_store"
+  count = nameserver_records_completed
+  source = "./projection_store"
 
   atlas_project_id = var.mongodbatlas_project_id
   mongodb_version  = "7.0"
@@ -84,7 +91,8 @@ module "projection_store" {
 }
 
 module "ambar" {
-  source = "ambar"
+  count = nameserver_records_completed
+  source = "./ambar"
 
   data_source_host     = module.event_store.event_store_endpoint
   data_source_user     = module.event_store.event_store_user
@@ -104,11 +112,13 @@ module "ambar" {
 }
 
 module "backend_container_service" {
-  source = "backend_service"
+  count = nameserver_records_completed
+  source = "./backend_service"
 
   region                = var.region
   backend_domain        = var.backend_application_domain
   frontend_domain       = var.frontend_domain
+  hosted_zone_id        = module.domain.hosted_zone_id
   vpc_id                = module.network.vpc_id
   public_subnet_ids     = module.network.public_subnet_ids
   private_subnet_ids    = module.network.private_subnet_ids
@@ -162,19 +172,22 @@ module "backend_container_service" {
 }
 
 module "monitoring" {
-  source = "monitoring"
+  count = nameserver_records_completed
+  source = "./monitoring"
 
   emails_for_alerts      = var.emails_for_alerts
   backend_log_group_name = module.backend_container_service.cloudwatch_log_group_name
 }
 
 module "frontend_container_service" {
-  source = "frontend_service"
+  count = nameserver_records_completed
+  source = "./frontend_service"
 
   region                = var.region
   backend_endpoint      = module.backend_container_service.nlb_dns_name
   frontend_domain       = var.frontend_domain
   additional_domains    = var.additional_frontend_domains
+  hosted_zone_id        = module.domain.hosted_zone_id
   vpc_id                = module.network.vpc_id
   public_subnet_ids     = module.network.public_subnet_ids
   private_subnet_ids    = module.network.private_subnet_ids

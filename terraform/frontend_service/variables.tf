@@ -88,3 +88,9 @@ variable "additional_domains" {
   description = "List of domains to create certificates for"
   type        = list(string)
 }
+
+# DNS Configuration for ACM certificate validation
+variable "hosted_zone_id" {
+  description = "Route53 hosted zone ID for DNS validation"
+  type        = string
+}

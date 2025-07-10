@@ -29,6 +29,34 @@ resource "aws_acm_certificate" "nlb_cert" {
   }
 }
 
+# DNS validation records for primary certificate
+resource "aws_route53_record" "primary_cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.nlb_cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = var.hosted_zone_id
+}
+
+# Primary certificate validation
+resource "aws_acm_certificate_validation" "primary_cert_validation" {
+  certificate_arn         = aws_acm_certificate.nlb_cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.primary_cert_validation : record.fqdn]
+
+  timeouts {
+    create = "10m"
+  }
+}
+
 resource "aws_acm_certificate" "domain_certs" {
   for_each = local.domain_set
 
@@ -40,11 +68,39 @@ resource "aws_acm_certificate" "domain_certs" {
   }
 }
 
+# DNS validation records for additional domain certificates
+resource "aws_route53_record" "domain_cert_validation" {
+  for_each = {
+    for dvo in flatten([
+      for cert_key, cert in aws_acm_certificate.domain_certs : [
+        for validation in cert.domain_validation_options : {
+          key    = "${cert_key}_${validation.domain_name}"
+          name   = validation.resource_record_name
+          record = validation.resource_record_value
+          type   = validation.resource_record_type
+          cert_key = cert_key
+        }
+      ]
+    ]) : dvo.key => dvo
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = var.hosted_zone_id
+}
+
 # Certificate validations
 resource "aws_acm_certificate_validation" "domain_validations" {
   for_each = aws_acm_certificate.domain_certs
 
   certificate_arn = each.value.arn
+  validation_record_fqdns = [
+    for record_key, record in aws_route53_record.domain_cert_validation : record.fqdn
+    if startswith(record_key, "${each.key}_")
+  ]
 
   timeouts {
     create = "10m"
@@ -93,7 +149,7 @@ resource "aws_lb_listener" "https" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_certificate.nlb_cert.arn
+  certificate_arn   = aws_acm_certificate_validation.primary_cert_validation.certificate_arn
 
   default_action {
     type             = "forward"

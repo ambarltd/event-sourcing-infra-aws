@@ -69,7 +69,6 @@ variable "github_org" {
 variable "domain" {
   description = "Common domain name"
   type        = string
-  default     = ""
 }
 
 ##
@@ -78,7 +77,6 @@ variable "domain" {
 variable "github_frontend_repo" {
   description = "GitHub repository name for frontend"
   type        = string
-  default     = ""
 }
 
 variable "github_frontend_repo_prod_branch" {
@@ -90,13 +88,12 @@ variable "github_frontend_repo_prod_branch" {
 variable "frontend_image" {
   description = "Frontend container image"
   type        = string
-  default     = ""
 }
 
 variable "frontend_application_port" {
   description = "Frontend application port"
   type        = number
-  default     = 8081
+  default     = 8080
 }
 
 variable "frontend_cpu_capacity" {
@@ -134,7 +131,6 @@ variable "frontend_domain" {
 variable "github_backend_repo" {
   description = "GitHub repository name for backend"
   type        = string
-  default     = ""
 }
 
 variable "github_backend_repo_prod_branch" {
@@ -146,13 +142,12 @@ variable "github_backend_repo_prod_branch" {
 variable "backend_image" {
   description = "Backend container image"
   type        = string
-  default     = ""
 }
 
 variable "backend_application_port" {
   description = "Backend application port"
   type        = number
-  default     = 8080
+  default     = 3000
 }
 
 variable "backend_cpu_capacity" {
@@ -176,7 +171,6 @@ variable "backend_instance_count" {
 variable "from_email" {
   description = "From email address"
   type        = string
-  default     = ""
 }
 
 variable "backend_application_domain" {
@@ -191,4 +185,13 @@ variable "emails_for_alerts" {
   description = "List of email addresses for alerts"
   type        = list(string)
   default     = []
+}
+
+##
+# Deployment management variables
+##
+variable "nameserver_records_completed" {
+  description = "CRITICAL: Only the Route53 HostedZone will be created until this variable is set to true. Use the NameServer dns entries from the terraform outputs to update the registrar where your domain is managed to allow for further resources to be created using it."
+  type = bool
+  default = false
 }
