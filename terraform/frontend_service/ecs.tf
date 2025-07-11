@@ -259,3 +259,16 @@ resource "aws_ecs_service" "app" {
     container_port   = var.container_port
   }
 }
+
+# Route53 A Record for Frontend Domain (alias to ALB)
+resource "aws_route53_record" "frontend" {
+  zone_id = var.hosted_zone_id
+  name    = var.frontend_domain
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.alb.dns_name
+    zone_id                = aws_lb.alb.zone_id
+    evaluate_target_health = true
+  }
+}

@@ -50,12 +50,24 @@ module "event_sourcing_app" {
   # Required Ambar Configuration
   ambar_api_key             = var.ambar_api_key
   ambar_regional_endpoint   = "euw1.api.ambar.cloud"
-  destination_endpoints_to_descriptions = {
-    "/projections/users"         = "User projection endpoint"
-    "/projections/orders"        = "Order projection endpoint"
-    "/reactions/notifications"   = "Notification reaction endpoint"
-    "/reactions/email-triggers"  = "Email trigger reaction endpoint"
-  }
+  destination_endpoints_to_descriptions = [
+    {
+      path        = "/projections/users"
+      description = "User projection endpoint"
+    },
+    {
+      path        = "/projections/orders"
+      description = "Order projection endpoint"
+    },
+    {
+      path        = "/reactions/notifications"
+      description = "Notification reaction endpoint"
+    },
+    {
+      path        = "/reactions/email-triggers"
+      description = "Email trigger reaction endpoint"
+    }
+  ]
 
   # Required Domain Configuration
   domain                     = "example.com"
@@ -125,7 +137,7 @@ module "event_sourcing_app" {
 | <a name="input_mongodbatlas_project_id"></a> [mongodbatlas\_project\_id](#input\_mongodbatlas\_project\_id) | MongoDB Atlas Project Identifier | `string` | n/a | yes |
 | <a name="input_ambar_api_key"></a> [ambar\_api\_key](#input\_ambar\_api\_key) | API key for Ambar provider | `string` | n/a | yes |
 | <a name="input_ambar_regional_endpoint"></a> [ambar\_regional\_endpoint](#input\_ambar\_regional\_endpoint) | The regional api endpoint for Ambar to use | `string` | n/a | yes |
-| <a name="input_destination_endpoints_to_descriptions"></a> [destination\_endpoints\_to\_descriptions](#input\_destination\_endpoints\_to\_descriptions) | Map of projection and reaction endpoints with key as path and value as a description | `map(string)` | n/a | yes |
+| <a name="input_destination_endpoints_to_descriptions"></a> [destination\_endpoints\_to\_descriptions](#input\_destination\_endpoints\_to\_descriptions) | List of destinations objects describing endpoint path and a description | `list(object({path=string, description=string}))` | n/a | yes |
 | <a name="input_frontend_domain"></a> [frontend\_domain](#input\_frontend\_domain) | Frontend domain name | `string` | n/a | yes |
 | <a name="input_backend_application_domain"></a> [backend\_application\_domain](#input\_backend\_application\_domain) | Backend application domain name | `string` | n/a | yes |
 | <a name="input_github_org"></a> [github\_org](#input\_github\_org) | GitHub organization name | `string` | `"ambarltd"` | no |

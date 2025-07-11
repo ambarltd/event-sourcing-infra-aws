@@ -291,3 +291,17 @@ resource "aws_ecs_service" "app" {
     container_port   = var.container_port
   }
 }
+
+# Route53 A Record for Backend Domain (alias to NLB)
+resource "aws_route53_record" "backend" {
+  count   = var.backend_domain != "" ? 1 : 0
+  zone_id = var.hosted_zone_id
+  name    = var.backend_domain
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.nlb.dns_name
+    zone_id                = aws_lb.nlb.zone_id
+    evaluate_target_health = true
+  }
+}

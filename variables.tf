@@ -53,8 +53,11 @@ variable "ambar_regional_endpoint" {
 }
 
 variable "destination_endpoints_to_descriptions" {
-  description = "Map of projection and reaction endpoints with key as path and value as a description"
-  type = map(string)
+  description = "List of destinations objects describing endpoint path and a description"
+  type = list(object({
+    path        = string
+    description = string
+  }))
 }
 
 ##
