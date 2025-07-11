@@ -1,5 +1,5 @@
 resource "aws_sns_topic" "alerts_topic" {
-  name = "${var.environment}-alerts"
+  name = "event-sourcing-app-alerts"
 }
 
 resource "aws_sns_topic_subscription" "alerts_subscription" {

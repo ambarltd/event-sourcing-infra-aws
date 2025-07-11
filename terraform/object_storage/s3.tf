@@ -70,7 +70,6 @@ resource "aws_iam_user" "s3_user" {
 
   tags = {
     Name    = "s3-user"
-    Project = var.name_uniqueness_suffix
   }
 }
 
