@@ -25,7 +25,7 @@ The module creates the following infrastructure:
 
 ```hcl
 module "event_sourcing_app" {
-  source = "github.com/ambarltd/event-sourcing-infra-aws/terraform"
+  source = "github.com/ambarltd/event-sourcing-infra-aws.git"
   
   # CRITICAL: 2-Step Deployment Process
   # STEP 1: Deploy with nameserver_records_completed = false (default)
