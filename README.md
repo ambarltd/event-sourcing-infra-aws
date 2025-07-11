@@ -103,13 +103,15 @@ module "event_sourcing_app" {
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| [terraform](#requirement\_terraform) | >= 1.0.0 |
-| [aws](#requirement\_aws) | 5.90.0 |
-| [random](#requirement\_random) | >= 3.1.0 |
-| [mongodbatlas](#requirement\_mongodbatlas) | >= 1.4.0 |
+| Name | Version   |
+|------|-----------|
+| [terraform](#requirement\_terraform) | >= 1.0.0  |
+| [aws](#requirement\_aws) | 5.90.0*   |
+| [random](#requirement\_random) | >= 3.1.0  |
+| [mongodbatlas](#requirement\_mongodbatlas) | >= 1.4.0  |
 | [ambar](#requirement\_ambar) | >= 1.0.11 |
+
+*AWS Version currently pinned due to issues with ap-southeast-5 and other regions.
 
 ## Inputs
 
