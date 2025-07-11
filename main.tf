@@ -1,6 +1,6 @@
 # Domain Module
 module "domain" {
-  source = "./domain"
+  source = "./terraform/domain"
 
   domain_name = var.domain
 }
@@ -8,7 +8,7 @@ module "domain" {
 # Email Module
 module "email" {
   count = nameserver_records_completed
-  source = "./email"
+  source = "./terraform/email"
 
   domain_name       = var.domain
   route53_zone_name = module.domain.zone_name
@@ -21,7 +21,7 @@ module "email" {
 # Network Module
 module "network" {
   count = nameserver_records_completed
-  source = "./network"
+  source = "./terraform/network"
   region = var.region
 
   # gets converted to regiona, regionb, etc. E.G. us-east-1a, us-east-1b...
@@ -37,7 +37,7 @@ module "network" {
 # Event Store Module
 module "event_store" {
   count = nameserver_records_completed
-  source = "./event_store"
+  source = "./terraform/event_store"
 
   vpc_id              = module.network.vpc_id
   database_subnet_ids = module.network.public_subnet_ids
@@ -48,7 +48,7 @@ module "event_store" {
 # Blob Storage Module
 module "object_storage" {
   count = nameserver_records_completed
-  source = "./object_storage"
+  source = "./terraform/object_storage"
 
   frontend_cors_domain = var.frontend_domain
 
@@ -61,7 +61,7 @@ module "object_storage" {
 # Image Registry Modules
 module "backend_image_registry" {
   count = nameserver_records_completed
-  source = "./image_registry"
+  source = "./terraform/image_registry"
 
   github_organization_with_read_write_access = var.github_org
   github_repository_with_read_write_access   = var.github_backend_repo
@@ -71,7 +71,7 @@ module "backend_image_registry" {
 
 module "frontend_image_registry" {
   count = nameserver_records_completed
-  source = "./image_registry"
+  source = "./terraform/image_registry"
 
   github_organization_with_read_write_access = var.github_org
   github_repository_with_read_write_access   = var.github_frontend_repo
@@ -81,7 +81,7 @@ module "frontend_image_registry" {
 
 module "projection_store" {
   count = nameserver_records_completed
-  source = "./projection_store"
+  source = "./terraform/projection_store"
 
   atlas_project_id = var.mongodbatlas_project_id
   mongodb_version  = "7.0"
@@ -92,7 +92,7 @@ module "projection_store" {
 
 module "ambar" {
   count = nameserver_records_completed
-  source = "./ambar"
+  source = "./terraform/ambar"
 
   data_source_host     = module.event_store.event_store_endpoint
   data_source_user     = module.event_store.event_store_user
@@ -113,7 +113,7 @@ module "ambar" {
 
 module "backend_container_service" {
   count = nameserver_records_completed
-  source = "./backend_service"
+  source = "./terraform/backend_service"
 
   region                = var.region
   backend_domain        = var.backend_application_domain
@@ -173,7 +173,7 @@ module "backend_container_service" {
 
 module "monitoring" {
   count = nameserver_records_completed
-  source = "./monitoring"
+  source = "./terraform/monitoring"
 
   emails_for_alerts      = var.emails_for_alerts
   backend_log_group_name = module.backend_container_service.cloudwatch_log_group_name
@@ -181,7 +181,7 @@ module "monitoring" {
 
 module "frontend_container_service" {
   count = nameserver_records_completed
-  source = "./frontend_service"
+  source = "./terraform/frontend_service"
 
   region                = var.region
   backend_endpoint      = module.backend_container_service.nlb_dns_name
