@@ -38,6 +38,12 @@ variable "mongodbatlas_project_id" {
   type = string
 }
 
+variable "mongodbatlas_free_tier" {
+  description = "If the projection store should use the M0 or M10 cluster size"
+  type = boolean
+  default = false
+}
+
 ##
 # Ambar related variables
 ##

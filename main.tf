@@ -86,7 +86,7 @@ module "projection_store" {
   atlas_project_id  = var.mongodbatlas_project_id
   mongodb_version   = "7.0"
   region            = var.region
-  mongodb_free_tier = true
+  mongodb_free_tier = var.mongodbatlas_free_tier
 
   depends_on = [module.network]
 }
