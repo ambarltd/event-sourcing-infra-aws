@@ -3,12 +3,12 @@ locals {
   # https://www.mongodb.com/docs/atlas/reference/amazon-aws/
   aws_to_atlast_region = {
     # North America
-    "us-east-1"    : "US_EAST_1",
-    "us-east-2"    : "US_EAST_2",
-    "us-west-1"    : "US_WEST_1",
-    "us-west-2"    : "US_WEST_2",
+    "us-east-1" : "US_EAST_1",
+    "us-east-2" : "US_EAST_2",
+    "us-west-1" : "US_WEST_1",
+    "us-west-2" : "US_WEST_2",
     "ca-central-1" : "CA_CENTRAL_1",
-    "ca-west-1"    : "CA_WEST_1",
+    "ca-west-1" : "CA_WEST_1",
     "mx-central-1" : "MX_CENTRAL_1",
 
     # South America
@@ -17,29 +17,29 @@ locals {
     # Europe
     "eu-central-1" : "EU_CENTRAL_1",
     "eu-central-2" : "EU_CENTRAL_2",
-    "eu-west-1"    : "EU_WEST_1",
-    "eu-west-2"    : "EU_WEST_2",
-    "eu-west-3"    : "EU_WEST_3",
-    "eu-north-1"   : "EU_NORTH_1",
-    "eu-south-1"   : "EU_SOUTH_1",
-    "eu-south-2"   : "EU_SOUTH_2",
+    "eu-west-1" : "EU_WEST_1",
+    "eu-west-2" : "EU_WEST_2",
+    "eu-west-3" : "EU_WEST_3",
+    "eu-north-1" : "EU_NORTH_1",
+    "eu-south-1" : "EU_SOUTH_1",
+    "eu-south-2" : "EU_SOUTH_2",
 
     # Asia Pacific
     "ap-northeast-1" : "AP_NORTHEAST_1",
     "ap-northeast-2" : "AP_NORTHEAST_2",
     "ap-northeast-3" : "AP_NORTHEAST_3",
-    "ap-south-1"     : "AP_SOUTH_1",
-    "ap-south-2"     : "AP_SOUTH_2",
+    "ap-south-1" : "AP_SOUTH_1",
+    "ap-south-2" : "AP_SOUTH_2",
     "ap-southeast-1" : "AP_SOUTHEAST_1",
     "ap-southeast-2" : "AP_SOUTHEAST_2",
     "ap-southeast-3" : "AP_SOUTHEAST_3",
     "ap-southeast-4" : "AP_SOUTHEAST_4",
     "ap-southeast-5" : "AP_SOUTHEAST_5",
     "ap-southeast-7" : "AP_SOUTHEAST_7",
-    "ap-east-1"      : "AP_EAST_1",
+    "ap-east-1" : "AP_EAST_1",
 
     # Middle East
-    "me-south-1"   : "ME_SOUTH_1",
+    "me-south-1" : "ME_SOUTH_1",
     "me-central-1" : "ME_CENTRAL_1",
     "il-central-1" : "IL_CENTRAL_1",
 
@@ -87,9 +87,11 @@ resource "mongodbatlas_cluster" "free_projection_store" {
 
   name                        = "projection-store"
   project_id                  = var.atlas_project_id
+
   provider_instance_size_name = "M0"
   provider_name               = "TENANT"
   backing_provider_name       = "AWS"
+  provider_region_name        = local.aws_to_atlast_region[var.region]
 }
 
 # IP whitelist
