@@ -88,7 +88,8 @@ resource "mongodbatlas_cluster" "free_projection_store" {
   name                        = "projection-store"
   project_id                  = var.atlas_project_id
   provider_instance_size_name = "M0"
-  provider_name               = "AWS"
+  provider_name               = "TENANT"
+  backing_provider_name       = "AWS"
 }
 
 # IP whitelist
