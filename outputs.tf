@@ -147,6 +147,13 @@ output "backend_log_group_name" {
 }
 
 ##
+# Other
+##
+output "dns_configuration_complete" {
+  value = var.nameserver_records_completed
+}
+
+##
 # Setup Instructions
 ##
 output "setup_instructions" {
