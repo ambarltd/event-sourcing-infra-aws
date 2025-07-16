@@ -53,7 +53,7 @@ resource "aws_acm_certificate_validation" "primary_cert_validation" {
   validation_record_fqdns = [for record in aws_route53_record.primary_cert_validation : record.fqdn]
 
   timeouts {
-    create = "10m"
+    create = "30m"
   }
 }
 
