@@ -150,6 +150,7 @@ output "backend_log_group_name" {
 # Other
 ##
 output "dns_configuration_complete" {
+  description = "Helper output for consumer templates"
   value = var.nameserver_records_completed
 }
 
@@ -176,12 +177,6 @@ output "setup_instructions" {
       frontend_role = var.nameserver_records_completed ? module.frontend_image_registry[0].github_assumable_role_read_write : "Available after DNS setup"
       backend_role = var.nameserver_records_completed ? module.backend_image_registry[0].github_assumable_role_read_write : "Available after DNS setup"
       status = var.nameserver_records_completed ? "🔄 Ready for CI/CD setup" : "⏸️ Waiting for DNS setup"
-    }
-    application_urls = {
-      description = "Your application will be available at these URLs after DNS propagation"
-      frontend = "https://${var.frontend_domain}"
-      backend = "https://${var.backend_application_domain}"
-      status = var.nameserver_records_completed ? "🔄 Deploy applications to activate" : "⏸️ Waiting for DNS setup"
     }
   }
 }
