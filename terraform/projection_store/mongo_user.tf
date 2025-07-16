@@ -38,7 +38,7 @@ resource "mongodbatlas_database_user" "projection_store_user" {
   }
 
   scopes {
-    name = mongodbatlas_cluster.projection_store.name
+    name = var.mongodb_free_tier ? mongodbatlas_cluster.free_projection_store[0].name : mongodbatlas_cluster.projection_store[0].name
     type = "CLUSTER"
   }
 }

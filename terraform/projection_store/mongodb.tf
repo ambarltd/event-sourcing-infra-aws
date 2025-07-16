@@ -101,7 +101,7 @@ resource "mongodbatlas_project_ip_access_list" "aws_access" {
 # Backup policy
 resource "mongodbatlas_cloud_backup_schedule" "backup_schedule" {
   project_id   = var.atlas_project_id
-  cluster_name = mongodbatlas_cluster.projection_store.name
+  cluster_name = var.mongodb_free_tier ? mongodbatlas_cluster.free_projection_store[0].name : mongodbatlas_cluster.projection_store[0].name
 
   reference_hour_of_day    = 3
   reference_minute_of_hour = 0
