@@ -50,6 +50,8 @@ locals {
 
 # MongoDB Atlas Cluster
 resource "mongodbatlas_cluster" "projection_store" {
+  count = !var.mongodb_free_tier ? 1 : 0
+
   project_id   = var.atlas_project_id
   name         = "projection-store"
   cluster_type = "REPLICASET"
@@ -78,6 +80,15 @@ resource "mongodbatlas_cluster" "projection_store" {
       provider_instance_size_name
     ]
   }
+}
+
+resource "mongodbatlas_cluster" "free_projection_store" {
+  count = var.mongodb_free_tier ? 1 : 0
+
+  name                        = "projection-store"
+  project_id                  = var.atlas_project_id
+  provider_instance_size_name = "M0"
+  provider_name               = "AWS"
 }
 
 # IP whitelist

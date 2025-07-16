@@ -83,9 +83,10 @@ module "projection_store" {
   count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/projection_store"
 
-  atlas_project_id = var.mongodbatlas_project_id
-  mongodb_version  = "7.0"
-  region           = var.region
+  atlas_project_id  = var.mongodbatlas_project_id
+  mongodb_version   = "7.0"
+  region            = var.region
+  mongodb_free_tier = true
 
   depends_on = [module.network]
 }
