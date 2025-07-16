@@ -40,7 +40,7 @@ variable "mongodbatlas_project_id" {
 
 variable "mongodbatlas_free_tier" {
   description = "If the projection store should use the M0 or M10 cluster size"
-  type = boolean
+  type = bool
   default = false
 }
 
