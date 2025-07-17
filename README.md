@@ -83,6 +83,9 @@ module "event_sourcing_app" {
   frontend_image = "a6c58d7df3ea76c5463161eae6c201659e397ece"
   backend_image  = "a6c58d7df3ea76c5463161eae6c201659e397ece"
 
+  # Optional MongoDB Configuration (with defaults shown)
+  mongodbatlas_free_tier = false  # default: false
+
   # Optional GitHub Configuration (with defaults shown)
   github_org                        = "ambarltd"         # default: "ambarltd"
   github_frontend_repo_prod_branch  = "main"             # default: "main"
@@ -110,6 +113,9 @@ module "event_sourcing_app" {
     "ops@example.com",
     "devops@example.com"
   ]  # default: []
+
+  # Optional Deployment Management (with defaults shown)
+  event_store_configured = false  # default: false
 }
 ```
 
@@ -135,6 +141,7 @@ module "event_sourcing_app" {
 | <a name="input_mongodbatlas_public_key"></a> [mongodbatlas\_public\_key](#input\_mongodbatlas\_public\_key) | MongoDB Atlas public API key | `string` | n/a | yes |
 | <a name="input_mongodbatlas_private_key"></a> [mongodbatlas\_private\_key](#input\_mongodbatlas\_private\_key) | MongoDB Atlas private API key | `string` | n/a | yes |
 | <a name="input_mongodbatlas_project_id"></a> [mongodbatlas\_project\_id](#input\_mongodbatlas\_project\_id) | MongoDB Atlas Project Identifier | `string` | n/a | yes |
+| <a name="input_mongodbatlas_free_tier"></a> [mongodbatlas\_free\_tier](#input\_mongodbatlas\_free\_tier) | If the projection store should use the M0 or M10 cluster size | `bool` | `false` | no |
 | <a name="input_ambar_api_key"></a> [ambar\_api\_key](#input\_ambar\_api\_key) | API key for Ambar provider | `string` | n/a | yes |
 | <a name="input_ambar_regional_endpoint"></a> [ambar\_regional\_endpoint](#input\_ambar\_regional\_endpoint) | The regional api endpoint for Ambar to use | `string` | n/a | yes |
 | <a name="input_destination_endpoints_to_descriptions"></a> [destination\_endpoints\_to\_descriptions](#input\_destination\_endpoints\_to\_descriptions) | List of destinations objects describing endpoint path and a description | `list(object({path=string, description=string}))` | n/a | yes |
@@ -160,33 +167,70 @@ module "event_sourcing_app" {
 | <a name="input_from_email"></a> [from\_email](#input\_from\_email) | From email address | `string` | n/a | yes |
 | <a name="input_emails_for_alerts"></a> [emails\_for\_alerts](#input\_emails\_for\_alerts) | List of email addresses for alerts | `list(string)` | `[]` | no |
 | <a name="input_nameserver_records_completed"></a> [nameserver\_records\_completed](#input\_nameserver\_records\_completed) | CRITICAL: Only the Route53 HostedZone will be created until this variable is set to true. Use the NameServer dns entries from the terraform outputs to update the registrar where your domain is managed to allow for further resources to be created using it. | `bool` | `false` | no |
+| <a name="input_event_store_configured"></a> [event\_store\_configured](#input\_event\_store\_configured) | If the application has been deployed at least once and successfully connected to and configured the event store for ambar use. | `bool` | `false` | no |
 
 ## Outputs
 
+### DNS and Domain Configuration
 | Name | Description |
 |------|-------------|
 | <a name="output_domain_name_servers"></a> [domain\_name\_servers](#output\_domain\_name\_servers) | Name servers for the hosted zone - CRITICAL: Configure these at your domain registrar |
+| <a name="output_dns_configuration_complete"></a> [dns\_configuration\_complete](#output\_dns\_configuration\_complete) | Helper output for consumer templates |
+
+### Application URLs
+| Name | Description |
+|------|-------------|
 | <a name="output_frontend_url"></a> [frontend\_url](#output\_frontend\_url) | URL of the frontend application |
 | <a name="output_backend_url"></a> [backend\_url](#output\_backend\_url) | URL of the backend API |
+
+### Container Registry
+| Name | Description |
+|------|-------------|
 | <a name="output_frontend_ecr_repository_url"></a> [frontend\_ecr\_repository\_url](#output\_frontend\_ecr\_repository\_url) | ECR repository URL for frontend container images |
 | <a name="output_backend_ecr_repository_url"></a> [backend\_ecr\_repository\_url](#output\_backend\_ecr\_repository\_url) | ECR repository URL for backend container images |
-| <a name="output_frontend_github_role_arn"></a> [frontend\_github\_role\_arn](#output\_frontend\_github\_role\_arn) | GitHub Actions assumable role ARN for frontend CI/CD |
-| <a name="output_backend_github_role_arn"></a> [backend\_github\_role\_arn](#output\_backend\_github\_role\_arn) | GitHub Actions assumable role ARN for backend CI/CD |
+
+### Database Connections
+| Name | Description |
+|------|-------------|
 | <a name="output_event_store_endpoint"></a> [event\_store\_endpoint](#output\_event\_store\_endpoint) | RDS PostgreSQL endpoint for event store (sensitive) |
 | <a name="output_mongodb_cluster_name"></a> [mongodb\_cluster\_name](#output\_mongodb\_cluster\_name) | MongoDB Atlas cluster name for projections |
 | <a name="output_mongodb_cluster_id"></a> [mongodb\_cluster\_id](#output\_mongodb\_cluster\_id) | MongoDB Atlas cluster ID |
+
+### Object Storage
+| Name | Description |
+|------|-------------|
 | <a name="output_s3_bucket_name"></a> [s3\_bucket\_name](#output\_s3\_bucket\_name) | S3 bucket name for object storage |
 | <a name="output_s3_bucket_domain"></a> [s3\_bucket\_domain](#output\_s3\_bucket\_domain) | S3 bucket domain name for direct access |
+
+### Email Service
+| Name | Description |
+|------|-------------|
 | <a name="output_allowed_from_addresses"></a> [allowed\_from\_addresses](#output\_allowed\_from\_addresses) | List of verified email addresses for SES sending |
+
+### Network Infrastructure
+| Name | Description |
+|------|-------------|
 | <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | VPC ID for the infrastructure |
 | <a name="output_vpc_cidr_block"></a> [vpc\_cidr\_block](#output\_vpc\_cidr\_block) | CIDR block of the VPC |
 | <a name="output_availability_zones"></a> [availability\_zones](#output\_availability\_zones) | Availability zones used by the infrastructure |
 | <a name="output_public_subnet_ids"></a> [public\_subnet\_ids](#output\_public\_subnet\_ids) | List of public subnet IDs |
 | <a name="output_private_subnet_ids"></a> [private\_subnet\_ids](#output\_private\_subnet\_ids) | List of private subnet IDs |
+
+### Container Services
+| Name | Description |
+|------|-------------|
 | <a name="output_frontend_cluster_name"></a> [frontend\_cluster\_name](#output\_frontend\_cluster\_name) | ECS cluster name for frontend service |
 | <a name="output_backend_cluster_name"></a> [backend\_cluster\_name](#output\_backend\_cluster\_name) | ECS cluster name for backend service |
 | <a name="output_frontend_service_name"></a> [frontend\_service\_name](#output\_frontend\_service\_name) | ECS service name for frontend |
 | <a name="output_backend_service_name"></a> [backend\_service\_name](#output\_backend\_service\_name) | ECS service name for backend |
+
+### Monitoring and Logging
+| Name | Description |
+|------|-------------|
 | <a name="output_frontend_log_group_name"></a> [frontend\_log\_group\_name](#output\_frontend\_log\_group\_name) | CloudWatch log group name for frontend service |
 | <a name="output_backend_log_group_name"></a> [backend\_log\_group\_name](#output\_backend\_log\_group\_name) | CloudWatch log group name for backend service |
+
+### Setup Instructions
+| Name | Description |
+|------|-------------|
 | <a name="output_setup_instructions"></a> [setup\_instructions](#output\_setup\_instructions) | Critical setup steps required after infrastructure deployment |

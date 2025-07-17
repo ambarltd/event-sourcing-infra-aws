@@ -142,7 +142,7 @@ resource "aws_ecs_task_definition" "app" {
         },
         {
           name  = "EVENT_STORE_DATABASE_NAME"
-          value = "potgres"
+          value = "postgres"
         },
         {
           name  = "EVENT_STORE_USER"
