@@ -1,3 +1,7 @@
+locals {
+  backend_domain = "api.${var.domain}"
+}
+
 # Domain Module
 module "domain" {
   source = "./terraform/domain"
@@ -95,7 +99,7 @@ module "ambar" {
   ambar_password       = module.backend_container_service[0].ambar_un
   ambar_username       = module.backend_container_service[0].ambar_pw
 
-  data_destination_domain = var.backend_application_domain
+  data_destination_domain = local.backend_domain
 
   destination_endpoints_to_descriptions = var.destination_endpoints_to_descriptions
 
@@ -111,7 +115,7 @@ module "backend_container_service" {
   source = "./terraform/backend_service"
 
   region                = var.region
-  backend_domain        = "api.${var.domain}"
+  backend_domain        = local.backend_domain
   frontend_domain       = var.domain
   hosted_zone_id        = module.domain.hosted_zone_id
   vpc_id                = module.network[0].vpc_id
