@@ -82,14 +82,12 @@ module "event_sourcing_app" {
   # Required Application Images
   frontend_image = "a6c58d7df3ea76c5463161eae6c201659e397ece"
   backend_image  = "a6c58d7df3ea76c5463161eae6c201659e397ece"
+  
+  # Deployment Management. Once your application is up and healthy, deploy Ambar resources.
+  event_store_configured = true  # default: false
 
   # Optional MongoDB Configuration (with defaults shown)
   mongodbatlas_free_tier = false  # default: false
-
-  # Optional GitHub Configuration (with defaults shown)
-  github_org                        = "ambarltd"         # default: "ambarltd"
-  github_frontend_repo_prod_branch  = "main"             # default: "main"
-  github_backend_repo_prod_branch   = "production"       # default: "main"
 
   # Optional Frontend Configuration (with defaults shown)
   frontend_application_port = 8080  # default: 8080
@@ -113,9 +111,6 @@ module "event_sourcing_app" {
     "ops@example.com",
     "devops@example.com"
   ]  # default: []
-
-  # Optional Deployment Management (with defaults shown)
-  event_store_configured = false  # default: false
 }
 ```
 
