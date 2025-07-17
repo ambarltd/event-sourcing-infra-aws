@@ -204,3 +204,9 @@ variable "nameserver_records_completed" {
   type = bool
   default = false
 }
+
+variable "event_store_configured" {
+  description = "If the application has been deployed at least once and successfully connected to and configured the event store for ambar use."
+  type = bool
+  default = false
+}

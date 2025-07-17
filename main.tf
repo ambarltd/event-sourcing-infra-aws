@@ -92,7 +92,7 @@ module "projection_store" {
 }
 
 module "ambar" {
-  count  = var.nameserver_records_completed ? 1 : 0
+  count  = (var.nameserver_records_completed && var.event_store_configured) ? 1 : 0
   source = "./terraform/ambar"
 
   data_source_host     = module.event_store[0].event_store_endpoint
