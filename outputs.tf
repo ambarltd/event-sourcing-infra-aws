@@ -11,12 +11,12 @@ output "domain_name_servers" {
 ##
 output "frontend_url" {
   description = "URL of the frontend application"
-  value       = var.nameserver_records_completed ? "https://${var.frontend_domain}" : "DNS setup required - configure nameservers first"
+  value       = var.nameserver_records_completed ? "https://${var.domain}" : "DNS setup required - configure nameservers first"
 }
 
 output "backend_url" {
   description = "URL of the backend API"
-  value       = var.nameserver_records_completed ? "https://${var.backend_application_domain}" : "DNS setup required - configure nameservers first"
+  value       = var.nameserver_records_completed ? "https://api.${var.domain}" : "DNS setup required - configure nameservers first"
 }
 
 ##
@@ -30,16 +30,6 @@ output "frontend_ecr_repository_url" {
 output "backend_ecr_repository_url" {
   description = "ECR repository URL for backend container images"
   value       = var.nameserver_records_completed ? module.backend_image_registry[0].ecr_repository_repository_url : "Available after DNS setup"
-}
-
-output "frontend_github_role_arn" {
-  description = "GitHub Actions assumable role ARN for frontend CI/CD"
-  value       = var.nameserver_records_completed ? module.frontend_image_registry[0].github_assumable_role_read_write : "Available after DNS setup"
-}
-
-output "backend_github_role_arn" {
-  description = "GitHub Actions assumable role ARN for backend CI/CD"
-  value       = var.nameserver_records_completed ? module.backend_image_registry[0].github_assumable_role_read_write : "Available after DNS setup"
 }
 
 ##
@@ -171,12 +161,6 @@ output "setup_instructions" {
       frontend_ecr = var.nameserver_records_completed ? module.frontend_image_registry[0].ecr_repository_repository_url : "Available after DNS setup"
       backend_ecr = var.nameserver_records_completed ? module.backend_image_registry[0].ecr_repository_repository_url : "Available after DNS setup"
       status = var.nameserver_records_completed ? "🔄 Ready for images" : "⏸️ Waiting for DNS setup"
-    }
-    github_actions = {
-      description = "Configure these IAM roles in your GitHub Actions for CI/CD"
-      frontend_role = var.nameserver_records_completed ? module.frontend_image_registry[0].github_assumable_role_read_write : "Available after DNS setup"
-      backend_role = var.nameserver_records_completed ? module.backend_image_registry[0].github_assumable_role_read_write : "Available after DNS setup"
-      status = var.nameserver_records_completed ? "🔄 Ready for CI/CD setup" : "⏸️ Waiting for DNS setup"
     }
   }
 }

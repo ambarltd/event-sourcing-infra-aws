@@ -67,32 +67,8 @@ variable "destination_endpoints_to_descriptions" {
 }
 
 ##
-# Common configuration variables
-##
-variable "github_org" {
-  description = "GitHub organization name"
-  type        = string
-  default     = "ambarltd"
-}
-
-variable "domain" {
-  description = "Common domain name"
-  type        = string
-}
-
-##
 # Frontend configuration variables
 ##
-variable "github_frontend_repo" {
-  description = "GitHub repository name for frontend"
-  type        = string
-}
-
-variable "github_frontend_repo_prod_branch" {
-  description = "Production branch for frontend repository"
-  type        = string
-  default     = "main"
-}
 
 variable "frontend_image" {
   description = "Frontend container image"
@@ -129,24 +105,14 @@ variable "additional_frontend_domains" {
   default     = []
 }
 
-variable "frontend_domain" {
-  description = "Frontend domain name"
+variable "domain" {
+  description = "Domain name for frontend hosting"
   type        = string
 }
 
 ##
 # Backend configuration variables
 ##
-variable "github_backend_repo" {
-  description = "GitHub repository name for backend"
-  type        = string
-}
-
-variable "github_backend_repo_prod_branch" {
-  description = "Production branch for backend repository"
-  type        = string
-  default     = "main"
-}
 
 variable "backend_image" {
   description = "Backend container image"
@@ -179,11 +145,6 @@ variable "backend_instance_count" {
 
 variable "from_email" {
   description = "From email address"
-  type        = string
-}
-
-variable "backend_application_domain" {
-  description = "Backend application domain name"
   type        = string
 }
 

@@ -50,7 +50,7 @@ module "object_storage" {
   count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/object_storage"
 
-  frontend_cors_domain = var.frontend_domain
+  frontend_cors_domain = var.domain
 
   # These configs get defaulted to these values, but we are bubbling them up to be explicit / for visibility
   enable_versioning                  = true
@@ -63,9 +63,6 @@ module "backend_image_registry" {
   count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/image_registry"
 
-  github_organization_with_read_write_access = var.github_org
-  github_repository_with_read_write_access   = var.github_backend_repo
-  github_branch_with_read_write_access       = var.github_backend_repo_prod_branch
   ecr_repo_name                              = "event-sourcing-app-backend"
 }
 
@@ -73,9 +70,6 @@ module "frontend_image_registry" {
   count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/image_registry"
 
-  github_organization_with_read_write_access = var.github_org
-  github_repository_with_read_write_access   = var.github_frontend_repo
-  github_branch_with_read_write_access       = var.github_frontend_repo_prod_branch
   ecr_repo_name                              = "event-sourcing-app-frontend"
 }
 
@@ -117,8 +111,8 @@ module "backend_container_service" {
   source = "./terraform/backend_service"
 
   region                = var.region
-  backend_domain        = var.backend_application_domain
-  frontend_domain       = var.frontend_domain
+  backend_domain        = "api.${var.domain}"
+  frontend_domain       = var.domain
   hosted_zone_id        = module.domain.hosted_zone_id
   vpc_id                = module.network[0].vpc_id
   public_subnet_ids     = module.network[0].public_subnet_ids
@@ -186,7 +180,7 @@ module "frontend_container_service" {
 
   region                = var.region
   backend_endpoint      = module.backend_container_service[0].nlb_dns_name
-  frontend_domain       = var.frontend_domain
+  frontend_domain       = var.domain
   additional_domains    = var.additional_frontend_domains
   hosted_zone_id        = module.domain.hosted_zone_id
   vpc_id                = module.network[0].vpc_id

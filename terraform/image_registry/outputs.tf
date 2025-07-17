@@ -1,7 +1,3 @@
-output "github_assumable_role_read_write" {
-  value = aws_iam_role.github.arn
-}
-
 output "ecr_repository_name" {
   value = aws_ecr_repository.repository.name
 }
