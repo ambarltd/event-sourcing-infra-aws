@@ -1,3 +1,8 @@
+variable "environment_name" {
+  description = "Environment name used as a prefix for all resources"
+  type        = string
+}
+
 variable "region" {
   description = "AWS region"
   type        = string

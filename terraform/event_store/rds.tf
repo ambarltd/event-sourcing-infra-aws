@@ -1,11 +1,11 @@
 # DB Subnet group using the database subnets from the network module
 resource "aws_db_subnet_group" "rds" {
-  name       = "rds-subnet-group"
+  name       = "${var.environment_name}-rds-subnet-group"
   subnet_ids = var.database_subnet_ids
 }
 
 module "database" {
-  name    = "postgres"
+  name    = "${var.environment_name}-postgres"
   source  = "terraform-aws-modules/rds-aurora/aws"
   version = "9.13.0"
 
@@ -62,7 +62,7 @@ module "database" {
 }
 
 resource "aws_db_parameter_group" "postgres" {
-  name        = "db-par-service-postgres"
+  name        = "${var.environment_name}-db-par-service-postgres"
   family      = "aurora-postgresql15"
   description = "aurora-db-parameter-group"
 
@@ -72,7 +72,7 @@ resource "aws_db_parameter_group" "postgres" {
 }
 
 resource "aws_rds_cluster_parameter_group" "postgres" {
-  name        = "par-service-postgres"
+  name        = "${var.environment_name}-par-service-postgres"
   family      = "aurora-postgresql15"
   description = "aurora-cluster-parameter-group"
 

@@ -5,7 +5,7 @@ resource "random_string" "bucket_suffix" {
 }
 
 resource "aws_s3_bucket" "blob_storage" {
-  bucket = "blob-storage-${random_string.bucket_suffix.result}"
+  bucket = "${var.environment_name}-blob-storage-${random_string.bucket_suffix.result}"
 }
 
 resource "aws_s3_bucket_cors_configuration" "cors_configuration" {
@@ -65,11 +65,11 @@ resource "aws_s3_bucket_public_access_block" "blob_storage_public_access" {
 
 # IAM User for S3 bucket access
 resource "aws_iam_user" "s3_user" {
-  name = "s3-user"
+  name = "${var.environment_name}-s3-user"
   path = "/system/"
 
   tags = {
-    Name    = "s3-user"
+    Name    = "${var.environment_name}-s3-user"
   }
 }
 
@@ -93,7 +93,7 @@ data "aws_iam_policy_document" "s3_access" {
 
 # Create the IAM policy
 resource "aws_iam_policy" "s3_access_policy" {
-  name        = "s3-access-policy"
+  name        = "${var.environment_name}-s3-access-policy"
   description = "Policy for accessing the blob storage bucket"
   policy      = data.aws_iam_policy_document.s3_access.json
 }

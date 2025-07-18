@@ -10,12 +10,12 @@ locals {
 
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
-  name = "frontend-cluster"
+  name = "${var.environment_name}-frontend-cluster"
 }
 
 # CloudWatch Log Group for ECS
 resource "aws_cloudwatch_log_group" "ecs" {
-  name              = "/ecs/frontend-service"
+  name              = "/ecs/${var.environment_name}-frontend-service"
   retention_in_days = var.log_retention_days
 }
 
@@ -109,7 +109,7 @@ resource "aws_acm_certificate_validation" "domain_validations" {
 
 # Application Load Balancer (better for web apps)
 resource "aws_lb" "alb" {
-  name               = "frontend-alb"
+  name               = "${var.environment_name}-frontend-alb"
   internal           = false
   load_balancer_type = "application"
   subnets            = var.public_subnet_ids
@@ -159,7 +159,7 @@ resource "aws_lb_listener" "https" {
 
 # Target Group for the ALB
 resource "aws_lb_target_group" "http" {
-  name        = "frontend-tg"
+  name        = "${var.environment_name}-frontend-tg"
   port        = var.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -179,7 +179,7 @@ resource "aws_lb_target_group" "http" {
 
 # Task Definition
 resource "aws_ecs_task_definition" "app" {
-  family                   = "frontend-task"
+  family                   = "${var.environment_name}-frontend-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.container_cpu
@@ -189,7 +189,7 @@ resource "aws_ecs_task_definition" "app" {
 
   container_definitions = jsonencode([
     {
-      name  = "frontend-container"
+      name  = "${var.environment_name}-frontend-container"
       image = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/${var.ecr_repository_name}:${var.container_image}"
       #
       essential = true
@@ -241,7 +241,7 @@ resource "aws_ecs_task_definition" "app" {
 
 # ECS Service
 resource "aws_ecs_service" "app" {
-  name            = "frontend-service"
+  name            = "${var.environment_name}-frontend-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = var.desired_count
@@ -255,7 +255,7 @@ resource "aws_ecs_service" "app" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.http.arn
-    container_name   = "frontend-container"
+    container_name   = "${var.environment_name}-frontend-container"
     container_port   = var.container_port
   }
 }

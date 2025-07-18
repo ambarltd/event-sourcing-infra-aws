@@ -15,7 +15,7 @@ locals {
 
 # IAM Role for SES Email Sending
 resource "aws_iam_role" "email_user" {
-  name  = var.email_user_role_name
+  name  = "${var.environment_name}-ses-email-sender"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -47,7 +47,7 @@ resource "aws_iam_role" "email_user" {
 
 # IAM Policy for SES Email Sending
 resource "aws_iam_policy" "email_sender" {
-  name  = "${var.email_user_role_name}-policy"
+  name  = "${var.environment_name}-ses-email-sender-policy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -73,7 +73,7 @@ resource "aws_iam_policy" "email_sender" {
   })
 
   tags = {
-    Name        = "${var.email_user_role_name}-policy"
+    Name        = "${var.environment_name}-ses-email-sender-policy"
   }
 }
 
@@ -85,20 +85,20 @@ resource "aws_iam_role_policy_attachment" "email_sender" {
 
 # Instance profile for EC2 instances that need to send email
 resource "aws_iam_instance_profile" "email_user" {
-  name  = "${var.email_user_role_name}-profile"
+  name  = "${var.environment_name}-ses-email-sender-profile"
   role  = aws_iam_role.email_user.name
 
   tags = {
-    Name        = "${var.email_user_role_name}-profile"
+    Name        = "${var.environment_name}-ses-email-sender-profile"
   }
 }
 
 # IAM User for SMTP credentials
 resource "aws_iam_user" "smtp_user" {
-  name = "${var.email_user_role_name}-smtp-user"
+  name = "${var.environment_name}-smtp-user"
 
   tags = {
-    Name = "${var.email_user_role_name}-smtp-user"
+    Name = "${var.environment_name}-smtp-user"
   }
 }
 

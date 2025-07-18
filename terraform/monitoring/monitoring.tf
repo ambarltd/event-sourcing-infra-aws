@@ -1,6 +1,6 @@
 # Backend monitoring
 resource "aws_cloudwatch_log_metric_filter" "backend_log_filter" {
-  name           = "backend-service-log-filter"
+  name           = "${var.environment_name}-backend-service-log-filter"
   pattern        = "?\"ERROR\" ?\"error\" ?\"Error\""
   log_group_name = var.backend_log_group_name
   metric_transformation {
@@ -11,7 +11,7 @@ resource "aws_cloudwatch_log_metric_filter" "backend_log_filter" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "backend_errors_alarm" {
-  alarm_name = "backend-errors"
+  alarm_name = "${var.environment_name}-backend-errors"
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 10
@@ -31,7 +31,7 @@ resource "aws_cloudwatch_metric_alarm" "backend_errors_alarm" {
 
 # Frontend
 resource "aws_cloudwatch_log_metric_filter" "frontend_log_filter" {
-  name           = "frontend-service-log-filter"
+  name           = "${var.environment_name}-frontend-service-log-filter"
   pattern        = "?\"ERROR\" ?\"error\" ?\"Error\""
   log_group_name = var.frontend_log_group_name
   metric_transformation {
@@ -42,7 +42,7 @@ resource "aws_cloudwatch_log_metric_filter" "frontend_log_filter" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "frontend_errors_alarm" {
-  alarm_name = "frontend-errors"
+  alarm_name = "${var.environment_name}-frontend-errors"
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 10

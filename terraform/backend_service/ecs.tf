@@ -1,11 +1,11 @@
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
-  name = "backend-cluster"
+  name = "${var.environment_name}-backend-cluster"
 }
 
 # CloudWatch Log Group for ECS
 resource "aws_cloudwatch_log_group" "ecs" {
-  name              = "/ecs/backend-service"
+  name              = "/ecs/${var.environment_name}-backend-service"
   retention_in_days = var.log_retention_days
 }
 
@@ -49,7 +49,7 @@ resource "aws_acm_certificate_validation" "nlb_cert_validation" {
 
 # Network Load Balancer
 resource "aws_lb" "nlb" {
-  name               = "backend-nlb"
+  name               = "${var.environment_name}-backend-nlb"
   internal           = true
   load_balancer_type = "network"
   subnets            = var.private_subnet_ids
@@ -85,7 +85,7 @@ resource "aws_lb_listener" "https" {
 
 # Target Group for the NLB
 resource "aws_lb_target_group" "http" {
-  name        = "backend-tg"
+  name        = "${var.environment_name}-backend-tg"
   port        = var.container_port
   protocol    = "TCP"
   vpc_id      = var.vpc_id
@@ -105,7 +105,7 @@ resource "aws_lb_target_group" "http" {
 
 # Task Definition
 resource "aws_ecs_task_definition" "app" {
-  family                   = "backend-task"
+  family                   = "${var.environment_name}-backend-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.container_cpu
@@ -115,7 +115,7 @@ resource "aws_ecs_task_definition" "app" {
 
   container_definitions = jsonencode([
     {
-      name  = "backend-container"
+      name  = "${var.environment_name}-backend-container"
       image = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/${var.ecr_repository_name}:${var.container_image}"
       #
       essential = true
@@ -269,7 +269,7 @@ resource "aws_ecs_task_definition" "app" {
 
 # ECS Service
 resource "aws_ecs_service" "app" {
-  name            = "backend-service"
+  name            = "${var.environment_name}-backend-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = var.desired_count
@@ -283,7 +283,7 @@ resource "aws_ecs_service" "app" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.http.arn
-    container_name   = "backend-container"
+    container_name   = "${var.environment_name}-backend-container"
     container_port   = var.container_port
   }
 }

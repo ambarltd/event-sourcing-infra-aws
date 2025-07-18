@@ -1,6 +1,6 @@
 # Default Security Group (allows all outbound traffic)
 resource "aws_security_group" "default" {
-  name        = "default-sg"
+  name        = "${var.environment_name}-default-sg"
   description = "Default security group to allow outbound traffic"
   vpc_id      = aws_vpc.main.id
 
@@ -14,7 +14,7 @@ resource "aws_security_group" "default" {
 
 # ECS Security Group
 resource "aws_security_group" "ecs" {
-  name        = "ecs-sg"
+  name        = "${var.environment_name}-ecs-sg"
   description = "Security group for ECS Fargate tasks"
   vpc_id      = aws_vpc.main.id
 
@@ -64,7 +64,7 @@ resource "aws_security_group" "ecs" {
 
 # RDS Security Group
 resource "aws_security_group" "rds" {
-  name        = "rds-sg"
+  name        = "${var.environment_name}-rds-sg"
   description = "Security group for RDS PostgreSQL"
   vpc_id      = aws_vpc.main.id
 
@@ -86,7 +86,7 @@ resource "aws_security_group" "rds" {
 
 # ALB Security Group (For a Frontend, for example)
 resource "aws_security_group" "alb" {
-  name        = "alb-sg"
+  name        = "${var.environment_name}-alb-sg"
   description = "Security group for Application Load Balancer"
   vpc_id      = aws_vpc.main.id
 

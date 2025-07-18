@@ -1,6 +1,6 @@
 # ECS Execution Role
 resource "aws_iam_role" "ecs_execution_role" {
-  name = "backend-ecs-execution-role"
+  name = "${var.environment_name}-backend-ecs-execution-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -24,7 +24,7 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
 
 # ECR access policy for the execution role
 resource "aws_iam_role_policy" "ecs_execution_ecr_access" {
-  name = "backend-ecs-ecr-access"
+  name = "${var.environment_name}-backend-ecs-ecr-access"
   role = aws_iam_role.ecs_execution_role.id
 
   policy = jsonencode({
@@ -46,7 +46,7 @@ resource "aws_iam_role_policy" "ecs_execution_ecr_access" {
 
 # Task Role (permissions for the application running in the container)
 resource "aws_iam_role" "ecs_task_role" {
-  name = "backend-ecs-task-role"
+  name = "${var.environment_name}-backend-ecs-task-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -64,7 +64,7 @@ resource "aws_iam_role" "ecs_task_role" {
 
 # RDS access policy for the task role
 resource "aws_iam_role_policy" "rds_access" {
-  name = "backend-rds-access"
+  name = "${var.environment_name}-backend-rds-access"
   role = aws_iam_role.ecs_task_role.id
 
   policy = jsonencode({
@@ -87,7 +87,7 @@ resource "aws_iam_role_policy" "rds_access" {
 
 # CloudWatch Logs permission for the task role
 resource "aws_iam_role_policy" "ecs_task_cloudwatch" {
-  name = "backend-ecs-logs"
+  name = "${var.environment_name}-backend-ecs-logs"
   role = aws_iam_role.ecs_task_role.id
 
   policy = jsonencode({
@@ -107,7 +107,7 @@ resource "aws_iam_role_policy" "ecs_task_cloudwatch" {
 
 # S3 access policy for the task role
 resource "aws_iam_role_policy" "s3_access" {
-  name = "backend-s3-access"
+  name = "${var.environment_name}-backend-s3-access"
   role = aws_iam_role.ecs_task_role.id
 
   policy = jsonencode({

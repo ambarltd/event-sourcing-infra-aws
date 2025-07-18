@@ -1,7 +1,6 @@
-variable "email_user_role_name" {
-  description = "Name for the IAM role that will send emails"
+variable "environment_name" {
+  description = "Environment name used as a prefix for all resources"
   type        = string
-  default     = "ses-email-sender"
 }
 
 variable "domain_name" {

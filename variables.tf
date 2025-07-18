@@ -69,7 +69,6 @@ variable "destination_endpoints_to_descriptions" {
 ##
 # Frontend configuration variables
 ##
-
 variable "frontend_image" {
   description = "Frontend container image"
   type        = string
@@ -113,7 +112,6 @@ variable "domain" {
 ##
 # Backend configuration variables
 ##
-
 variable "backend_image" {
   description = "Backend container image"
   type        = string
@@ -170,4 +168,10 @@ variable "event_store_configured" {
   description = "If the application has been deployed at least once and successfully connected to and configured the event store for ambar use."
   type = bool
   default = false
+}
+
+variable "environment_name" {
+  description = "Resource name prefix for easy identification and allowing multiple template deployments to one AWS account."
+  type = string
+  default = "staging"
 }
