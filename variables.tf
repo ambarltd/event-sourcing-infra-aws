@@ -41,7 +41,6 @@ variable "mongodbatlas_project_id" {
 variable "mongodbatlas_free_tier" {
   description = "If the projection store should use the M0 or M10 cluster size"
   type = bool
-  default = false
 }
 
 ##
@@ -77,36 +76,46 @@ variable "frontend_image" {
 variable "frontend_application_port" {
   description = "Frontend application port"
   type        = number
-  default     = 8080
 }
 
 variable "frontend_cpu_capacity" {
   description = "Frontend CPU capacity"
   type        = number
-  default     = 256
 }
 
 variable "frontend_mem_capacity" {
   description = "Frontend memory capacity"
   type        = number
-  default     = 512
 }
 
 variable "frontend_instance_count" {
   description = "Frontend instance count"
   type        = number
-  default     = 0
 }
 
 variable "additional_frontend_domains" {
   description = "Additional frontend domains"
   type        = list(string)
-  default     = []
 }
 
-variable "domain" {
+variable "top_level_domain" {
   description = "Domain name for frontend hosting"
   type        = string
+}
+
+variable "frontend_application_domain_prefix" {
+  description = "A prefix (if any) to apply to the domain for hosting the frontend portion of the application (E.G. 'app' for app.domain.com)"
+  type = string
+}
+
+variable "hosted_zone_id" {
+  description = "ID of the hosted zone for the domain"
+  type = string
+}
+
+variable "hosted_zone_name" {
+  description = "Name of the hosted zone for the domain"
+  type = string
 }
 
 ##
@@ -117,32 +126,33 @@ variable "backend_image" {
   type        = string
 }
 
+variable "backend_application_domain_prefix" {
+  description = "A prefix (if any) to apply to the domain for hosting the backend portion of the application (E.G. 'api' for api.domain.com)"
+  type = string
+}
+
 variable "backend_application_port" {
   description = "Backend application port"
   type        = number
-  default     = 3000
 }
 
 variable "backend_cpu_capacity" {
   description = "Backend CPU capacity"
   type        = number
-  default     = 512
 }
 
 variable "backend_mem_capacity" {
   description = "Backend memory capacity"
   type        = number
-  default     = 1024
 }
 
 variable "backend_instance_count" {
   description = "Backend instance count"
   type        = number
-  default     = 0
 }
 
 variable "from_email" {
-  description = "From email address"
+  description = "Identity to send emails from the backend as (E.G. 'noreply' for noreply@domain.com"
   type        = string
 }
 
@@ -152,26 +162,14 @@ variable "from_email" {
 variable "emails_for_alerts" {
   description = "List of email addresses for alerts"
   type        = list(string)
-  default     = []
-}
-
-##
-# Deployment management variables
-##
-variable "nameserver_records_completed" {
-  description = "CRITICAL: Only the Route53 HostedZone will be created until this variable is set to true. Use the NameServer dns entries from the terraform outputs to update the registrar where your domain is managed to allow for further resources to be created using it."
-  type = bool
-  default = false
 }
 
 variable "event_store_configured" {
   description = "If the application has been deployed at least once and successfully connected to and configured the event store for ambar use."
   type = bool
-  default = false
 }
 
 variable "environment_name" {
   description = "Resource name prefix for easy identification and allowing multiple template deployments to one AWS account."
   type = string
-  default = "staging"
 }

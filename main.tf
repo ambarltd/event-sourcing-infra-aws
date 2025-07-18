@@ -1,35 +1,26 @@
 locals {
-  backend_domain = "api.${var.domain}"
+  backend_domain  = length(var.backend_application_domain_prefix) > 0 ? "${var.backend_application_domain_prefix}.${var.top_level_domain}" : "api.${var.top_level_domain}"
+  frontend_domain = length(var.frontend_application_domain_prefix) > 0 ? "${var.frontend_application_domain_prefix}.${var.top_level_domain}" : var.top_level_domain
 }
 
-# Domain Module
-module "domain" {
-  source = "./terraform/domain"
-
-  domain_name = var.domain
-}
 
 # Email Module
 module "email" {
-  count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/email"
 
   environment_name       = var.environment_name
-  domain_name            = var.domain
-  route53_zone_name      = module.domain.zone_name
-  route53_zone_id        = module.domain.hosted_zone_id
+  domain_name            = var.top_level_domain
+  route53_zone_name      = var.hosted_zone_name
+  route53_zone_id        = var.hosted_zone_id
   allowed_from_addresses = [var.from_email]
-
-  depends_on = [module.domain]
 }
 
 # Network Module
 module "network" {
-  count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/network"
-  
+
   environment_name = var.environment_name
-  region = var.region
+  region           = var.region
 
   # gets converted to regiona, regionb, etc. E.G. us-east-1a, us-east-1b...
   # These configs get defaulted to these values, but we are bubbling them up to be explicit / for visibility
@@ -43,7 +34,6 @@ module "network" {
 
 # Event Store Module
 module "event_store" {
-  count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/event_store"
 
   environment_name    = var.environment_name
@@ -55,11 +45,10 @@ module "event_store" {
 
 # Blob Storage Module
 module "object_storage" {
-  count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/object_storage"
 
   environment_name     = var.environment_name
-  frontend_cors_domain = var.domain
+  frontend_cors_domain = var.top_level_domain
 
   # These configs get defaulted to these values, but we are bubbling them up to be explicit / for visibility
   enable_versioning                  = true
@@ -69,7 +58,6 @@ module "object_storage" {
 
 # Image Registry Modules
 module "backend_image_registry" {
-  count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/image_registry"
 
   environment_name = var.environment_name
@@ -77,7 +65,6 @@ module "backend_image_registry" {
 }
 
 module "frontend_image_registry" {
-  count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/image_registry"
 
   environment_name = var.environment_name
@@ -85,7 +72,6 @@ module "frontend_image_registry" {
 }
 
 module "projection_store" {
-  count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/projection_store"
 
   environment_name  = var.environment_name
@@ -98,7 +84,7 @@ module "projection_store" {
 }
 
 module "ambar" {
-  count  = (var.nameserver_records_completed && var.event_store_configured) ? 1 : 0
+  count  = var.event_store_configured ? 1 : 0
   source = "./terraform/ambar"
 
   data_source_host     = module.event_store[0].event_store_endpoint
@@ -121,14 +107,13 @@ module "ambar" {
 # Todo:
 # Flag for public vs private subnets (Should API's be available generally, or just in VPC)
 module "backend_container_service" {
-  count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/backend_service"
 
   environment_name      = var.environment_name
   region                = var.region
-  backend_domain        = local.backend_domain
-  frontend_domain       = var.domain
-  hosted_zone_id        = module.domain.hosted_zone_id
+  backend_domain        = "${var.backend_application_domain_prefix}.${var.top_level_domain}"
+  frontend_domain       = "${var.frontend_application_domain_prefix}.${var.top_level_domain}"
+  hosted_zone_id        = var.hosted_zone_id
   vpc_id                = module.network[0].vpc_id
   public_subnet_ids     = module.network[0].public_subnet_ids
   private_subnet_ids    = module.network[0].private_subnet_ids
@@ -182,25 +167,24 @@ module "backend_container_service" {
 }
 
 module "monitoring" {
-  count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/monitoring"
 
-  environment_name       = var.environment_name
-  emails_for_alerts      = var.emails_for_alerts
-  backend_log_group_name = module.backend_container_service[0].cloudwatch_log_group_name
+  environment_name        = var.environment_name
+  emails_for_alerts       = var.emails_for_alerts
+  backend_log_group_name  = module.backend_container_service[0].cloudwatch_log_group_name
   frontend_log_group_name = module.frontend_container_service[0].cloudwatch_log_group_name
 }
 
 module "frontend_container_service" {
-  count  = var.nameserver_records_completed ? 1 : 0
+
   source = "./terraform/frontend_service"
 
   environment_name      = var.environment_name
   region                = var.region
   backend_endpoint      = module.backend_container_service[0].nlb_dns_name
-  frontend_domain       = var.domain
+  frontend_domain       = "${var.frontend_application_domain_prefix}.${var.top_level_domain}"
   additional_domains    = var.additional_frontend_domains
-  hosted_zone_id        = module.domain.hosted_zone_id
+  hosted_zone_id        = var.hosted_zone_id
   vpc_id                = module.network[0].vpc_id
   public_subnet_ids     = module.network[0].public_subnet_ids
   private_subnet_ids    = module.network[0].private_subnet_ids
