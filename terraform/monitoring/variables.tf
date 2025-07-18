@@ -8,5 +8,4 @@ variable "backend_log_group_name" {
 
 variable "frontend_log_group_name" {
   type = string
-  default = ""
 }

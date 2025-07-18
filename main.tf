@@ -176,6 +176,7 @@ module "monitoring" {
 
   emails_for_alerts      = var.emails_for_alerts
   backend_log_group_name = module.backend_container_service[0].cloudwatch_log_group_name
+  frontend_log_group_name = module.frontend_container_service[0].cloudwatch_log_group_name
 }
 
 module "frontend_container_service" {

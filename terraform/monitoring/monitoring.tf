@@ -31,9 +31,6 @@ resource "aws_cloudwatch_metric_alarm" "backend_errors_alarm" {
 
 # Frontend
 resource "aws_cloudwatch_log_metric_filter" "frontend_log_filter" {
-  # There may not be a frontend application, so only create these if a log_group_name is given
-  count = length(var.frontend_log_group_name) > 0 ? 1 : 0
-
   name           = "frontend-service-log-filter"
   pattern        = "?\"ERROR\" ?\"error\" ?\"Error\""
   log_group_name = var.frontend_log_group_name
@@ -45,14 +42,11 @@ resource "aws_cloudwatch_log_metric_filter" "frontend_log_filter" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "frontend_errors_alarm" {
-  # There may not be a frontend application, so only create these if a log_group_name is given
-  count = length(var.frontend_log_group_name) > 0 ? 1 : 0
-
   alarm_name = "frontend-errors"
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 10
-  metric_name         = "backend-errors"
+  metric_name         = "frontend-errors"
   namespace           = "frontend"
   period              = 60
   statistic           = "Sum"
