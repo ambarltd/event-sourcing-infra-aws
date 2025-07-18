@@ -12,7 +12,7 @@ module "email" {
   domain_name            = var.top_level_domain
   route53_zone_name      = var.hosted_zone_name
   route53_zone_id        = var.hosted_zone_id
-  allowed_from_addresses = [var.from_email]
+  allowed_from_addresses = ["${var.from_email}@${var.top_level_domain}"]
 }
 
 # Network Module
@@ -149,7 +149,7 @@ module "backend_container_service" {
   smtp_port       = module.email[0].smtp_port
   smtp_username   = module.email[0].smtp_username
   smtp_password   = module.email[0].smtp_password
-  smtp_from_email = var.from_email
+  smtp_from_email = "${var.from_email}@${var.top_level_domain}"
 
   desired_count = var.backend_instance_count
 
