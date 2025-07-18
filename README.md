@@ -229,3 +229,80 @@ module "event_sourcing_app" {
 | Name | Description |
 |------|-------------|
 | <a name="output_setup_instructions"></a> [setup\_instructions](#output\_setup\_instructions) | Critical setup steps required after infrastructure deployment |
+
+## Environment Variables
+
+The module automatically configures environment variables for both frontend and backend applications. These variables are injected into the ECS task definitions and are available to your applications at runtime.
+
+### Frontend Application Environment Variables
+
+| Variable Name | Description | Example Value |
+|---------------|-------------|---------------|
+| `API_ADDRESS` | Backend API endpoint for frontend to connect to | `http://backend-nlb-xxx.amazonaws.com` |
+| `PRODUCTION` | Production environment flag | `TRUE` |
+| `SERVER_PORT` | Port the frontend server should listen on | `8080` |
+| `SERVER_HOSTNAME` | Server hostname binding (IPv6 wildcard) | `::` |
+| `DOMAIN` | Comma-separated list of all frontend domains | `app.example.com,www.example.com` |
+| `LOAD_BALANCER` | DNS name of the Application Load Balancer | `frontend-alb-xxx.amazonaws.com` |
+
+### Backend Application Environment Variables
+
+#### Event Store Configuration (PostgreSQL RDS)
+| Variable Name | Description |
+|---------------|-------------|
+| `EVENT_STORE_HOST` | RDS PostgreSQL instance endpoint |
+| `EVENT_STORE_PORT` | Database connection port (typically 5432) |
+| `EVENT_STORE_DATABASE_NAME` | PostgreSQL database name (`postgres`) |
+| `EVENT_STORE_USER` | Database authentication username |
+| `EVENT_STORE_PASSWORD` | Database authentication password |
+| `EVENT_STORE_EVENTS_TABLE_NAME` | Name of the events table (`event_store`) |
+| `EVENT_STORE_IDEMPOTENT_REACTION_TABLE_NAME` | Name of the idempotent reactions table (`event_store_idempotent_reaction`) |
+| `EVENT_STORE_CREATE_REPLICATION_USER_WITH_USERNAME` | Username for database replication |
+| `EVENT_STORE_CREATE_REPLICATION_USER_WITH_PASSWORD` | Password for database replication |
+| `EVENT_STORE_CREATE_REPLICATION_PUBLICATION` | Name of the replication publication (`replication_publication`) |
+
+#### MongoDB Projection Store Configuration
+| Variable Name | Description |
+|---------------|-------------|
+| `MONGODB_PROJECTION_HOST` | MongoDB Atlas cluster host |
+| `MONGODB_PROJECTION_PORT` | MongoDB connection port (typically 27017) |
+| `MONGODB_PROJECTION_AUTHENTICATION_DATABASE` | MongoDB authentication database (`admin`) |
+| `MONGODB_PROJECTION_DATABASE_NAME` | MongoDB database for projections (`projections`) |
+| `MONGODB_PROJECTION_DATABASE_USERNAME` | MongoDB authentication username |
+| `MONGODB_PROJECTION_DATABASE_PASSWORD` | MongoDB authentication password |
+
+#### SMTP Configuration (SES)
+| Variable Name | Description |
+|---------------|-------------|
+| `SMTP_HOST` | SES SMTP endpoint |
+| `SMTP_PORT` | SMTP connection port |
+| `SMTP_USERNAME` | SES SMTP authentication username |
+| `SMTP_PASSWORD` | SES SMTP authentication password |
+| `SMTP_FROM_EMAIL_FOR_ADMINISTRATORS` | From email address for administrative emails (`internal@ambar.cloud`) |
+
+#### Ambar Configuration
+| Variable Name | Description |
+|---------------|-------------|
+| `AMBAR_HTTP_USERNAME` | HTTP authentication username for Ambar service (8-character random string) |
+| `AMBAR_HTTP_PASSWORD` | HTTP authentication password for Ambar service (16-character random password) |
+
+#### S3 Configuration
+| Variable Name | Description |
+|---------------|-------------|
+| `S3_ENDPOINT_URL` | S3 service endpoint URL |
+| `S3_ACCESS_KEY` | S3 authentication access key |
+| `S3_SECRET_KEY` | S3 authentication secret key |
+| `S3_BUCKET_NAME` | Name of the S3 bucket for blob storage |
+| `S3_REGION` | AWS region for S3 operations |
+
+#### Other Configuration
+| Variable Name | Description |
+|---------------|-------------|
+| `FRONTEND_DOMAIN` | Domain name of the frontend application |
+
+### Security Notes
+
+- All environment variables are passed directly in the ECS task definitions
+- Sensitive values (passwords, database credentials, API keys) are automatically generated and managed by Terraform
+- The Ambar HTTP credentials are randomly generated during deployment for security
+- Database and service credentials are sourced from the respective AWS services (RDS, SES, etc.)

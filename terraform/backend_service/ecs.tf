@@ -218,7 +218,7 @@ resource "aws_ecs_task_definition" "app" {
         },
         {
           name  = "SMTP_FROM_EMAIL_FOR_ADMINISTRATORS"
-          value = "internal@ambar.cloud"
+          value = var.smtp_from_email
         },
 
         # Ambar Configuration - hardcoded for now
