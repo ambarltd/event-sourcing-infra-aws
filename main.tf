@@ -110,6 +110,8 @@ module "ambar" {
   ]
 }
 
+# Todo:
+# Flag for public vs private subnets (Should API's be available generally, or just in VPC)
 module "backend_container_service" {
   count  = var.nameserver_records_completed ? 1 : 0
   source = "./terraform/backend_service"

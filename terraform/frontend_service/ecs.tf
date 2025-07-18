@@ -203,7 +203,7 @@ resource "aws_ecs_task_definition" "app" {
       environment = [
         {
           name  = "API_ADDRESS"
-          value = "http://${var.backend_endpoint}"
+          value = "https://${var.backend_endpoint}"
         },
         {
           name  = "PRODUCTION"

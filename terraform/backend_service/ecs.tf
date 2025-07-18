@@ -103,10 +103,6 @@ resource "aws_lb_target_group" "http" {
   }
 }
 
-resource random_password "admin_secret" {
-  length = 12
-}
-
 # Task Definition
 resource "aws_ecs_task_definition" "app" {
   family                   = "backend-task"
