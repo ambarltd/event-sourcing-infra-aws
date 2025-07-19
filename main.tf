@@ -182,7 +182,7 @@ module "frontend_container_service" {
   environment_name      = var.environment_name
   region                = var.region
   backend_endpoint      = module.backend_container_service.nlb_dns_name
-  frontend_domain       = "${var.frontend_application_domain_prefix}.${var.top_level_domain}"
+  frontend_domain       = local.frontend_domain
   additional_domains    = var.additional_frontend_domains
   hosted_zone_id        = var.hosted_zone_id
   vpc_id                = module.network.vpc_id
