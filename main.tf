@@ -1,6 +1,6 @@
 locals {
-  backend_domain  = length(var.backend_application_domain_prefix) > 0 ? "${var.backend_application_domain_prefix}.${var.top_level_domain}" : "api.${var.top_level_domain}"
-  frontend_domain = length(var.frontend_application_domain_prefix) > 0 ? "${var.frontend_application_domain_prefix}.${var.top_level_domain}" : var.top_level_domain
+  backend_domain  = var.backend_application_domain_prefix != "" ? "${var.backend_application_domain_prefix}.${var.top_level_domain}" : "api.${var.top_level_domain}"
+  frontend_domain = var.frontend_application_domain_prefix != "" ? "${var.frontend_application_domain_prefix}.${var.top_level_domain}" : var.top_level_domain
 }
 
 
