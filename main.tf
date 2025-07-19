@@ -37,8 +37,8 @@ module "event_store" {
   source = "./terraform/event_store"
 
   environment_name    = var.environment_name
-  vpc_id              = module.network[0].vpc_id
-  database_subnet_ids = module.network[0].public_subnet_ids
+  vpc_id              = module.network.vpc_id
+  database_subnet_ids = module.network.public_subnet_ids
 
   depends_on = [module.network]
 }
@@ -87,11 +87,11 @@ module "ambar" {
   count  = var.event_store_configured ? 1 : 0
   source = "./terraform/ambar"
 
-  data_source_host     = module.event_store[0].event_store_endpoint
-  data_source_user     = module.event_store[0].event_store_user
-  data_source_password = module.event_store[0].event_store_password
-  ambar_password       = module.backend_container_service[0].ambar_un
-  ambar_username       = module.backend_container_service[0].ambar_pw
+  data_source_host     = module.event_store.event_store_endpoint
+  data_source_user     = module.event_store.event_store_user
+  data_source_password = module.event_store.event_store_password
+  ambar_password       = module.backend_container_service.ambar_un
+  ambar_username       = module.backend_container_service.ambar_pw
 
   data_destination_domain = local.backend_domain
 
@@ -114,41 +114,41 @@ module "backend_container_service" {
   backend_domain        = "${var.backend_application_domain_prefix}.${var.top_level_domain}"
   frontend_domain       = "${var.frontend_application_domain_prefix}.${var.top_level_domain}"
   hosted_zone_id        = var.hosted_zone_id
-  vpc_id                = module.network[0].vpc_id
-  public_subnet_ids     = module.network[0].public_subnet_ids
-  private_subnet_ids    = module.network[0].private_subnet_ids
-  ecs_security_group_id = module.network[0].ecs_security_group_id
+  vpc_id                = module.network.vpc_id
+  public_subnet_ids     = module.network.public_subnet_ids
+  private_subnet_ids    = module.network.private_subnet_ids
+  ecs_security_group_id = module.network.ecs_security_group_id
 
   container_image     = var.backend_image
-  ecr_repository_name = module.backend_image_registry[0].ecr_repository_name
+  ecr_repository_name = module.backend_image_registry.ecr_repository_name
   container_port      = var.backend_application_port
   health_check_path   = "/"
   container_cpu       = var.backend_cpu_capacity
   container_memory    = var.backend_mem_capacity
 
   # S3 access
-  blob_storage_bucket_name = module.object_storage[0].bucket_name
-  blob_storage_bucket_arn  = module.object_storage[0].bucket_arn
-  s3_access_key_id         = module.object_storage[0].s3_access_key_id
-  s3_secret_access_key     = module.object_storage[0].s3_secret_access_key
+  blob_storage_bucket_name = module.object_storage.bucket_name
+  blob_storage_bucket_arn  = module.object_storage.bucket_arn
+  s3_access_key_id         = module.object_storage.s3_access_key_id
+  s3_secret_access_key     = module.object_storage.s3_secret_access_key
 
   # Event Store Configuration
-  event_store_endpoint = module.event_store[0].event_store_endpoint
+  event_store_endpoint = module.event_store.event_store_endpoint
   event_store_port     = 5432
-  event_store_username = module.event_store[0].event_store_user
-  event_store_password = module.event_store[0].event_store_password
+  event_store_username = module.event_store.event_store_user
+  event_store_password = module.event_store.event_store_password
 
   # MongoDB Projection Store Configuration
-  mongodb_host     = module.projection_store[0].srv_connection_host
+  mongodb_host     = module.projection_store.srv_connection_host
   mongodb_port     = 27017 # Not used when the srv string is passed
-  mongodb_username = module.projection_store[0].projection_store_user
-  mongodb_password = module.projection_store[0].projection_store_password
+  mongodb_username = module.projection_store.projection_store_user
+  mongodb_password = module.projection_store.projection_store_password
 
   # SMTP Configuration
-  smtp_host       = module.email[0].smtp_host
-  smtp_port       = module.email[0].smtp_port
-  smtp_username   = module.email[0].smtp_username
-  smtp_password   = module.email[0].smtp_password
+  smtp_host       = module.email.smtp_host
+  smtp_port       = module.email.smtp_port
+  smtp_username   = module.email.smtp_username
+  smtp_password   = module.email.smtp_password
   smtp_from_email = "${var.from_email}@${var.top_level_domain}"
 
   desired_count = var.backend_instance_count
@@ -171,8 +171,8 @@ module "monitoring" {
 
   environment_name        = var.environment_name
   emails_for_alerts       = var.emails_for_alerts
-  backend_log_group_name  = module.backend_container_service[0].cloudwatch_log_group_name
-  frontend_log_group_name = module.frontend_container_service[0].cloudwatch_log_group_name
+  backend_log_group_name  = module.backend_container_service.cloudwatch_log_group_name
+  frontend_log_group_name = module.frontend_container_service.cloudwatch_log_group_name
 }
 
 module "frontend_container_service" {
@@ -181,18 +181,18 @@ module "frontend_container_service" {
 
   environment_name      = var.environment_name
   region                = var.region
-  backend_endpoint      = module.backend_container_service[0].nlb_dns_name
+  backend_endpoint      = module.backend_container_service.nlb_dns_name
   frontend_domain       = "${var.frontend_application_domain_prefix}.${var.top_level_domain}"
   additional_domains    = var.additional_frontend_domains
   hosted_zone_id        = var.hosted_zone_id
-  vpc_id                = module.network[0].vpc_id
-  public_subnet_ids     = module.network[0].public_subnet_ids
-  private_subnet_ids    = module.network[0].private_subnet_ids
-  ecs_security_group_id = module.network[0].ecs_security_group_id
-  alb_security_group_id = module.network[0].alb_security_group_id
+  vpc_id                = module.network.vpc_id
+  public_subnet_ids     = module.network.public_subnet_ids
+  private_subnet_ids    = module.network.private_subnet_ids
+  ecs_security_group_id = module.network.ecs_security_group_id
+  alb_security_group_id = module.network.alb_security_group_id
 
   container_image     = var.frontend_image
-  ecr_repository_name = module.frontend_image_registry[0].ecr_repository_name
+  ecr_repository_name = module.frontend_image_registry.ecr_repository_name
   container_port      = var.frontend_application_port
   health_check_path   = "/"
   container_cpu       = var.frontend_cpu_capacity
