@@ -16,10 +16,10 @@ output "backend_url" {
 ##
 output "frontend_ecr_repository_url" {
   description = "ECR repository URL for frontend container images"
-  value       = module.frontend_image_registry[0].ecr_repository_repository_url
+  value       = module.frontend_image_registry.ecr_repository_repository_url
 }
 
 output "backend_ecr_repository_url" {
   description = "ECR repository URL for backend container images"
-  value       = module.backend_image_registry[0].ecr_repository_repository_url
+  value       = module.backend_image_registry.ecr_repository_repository_url
 }
