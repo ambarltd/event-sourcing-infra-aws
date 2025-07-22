@@ -6,33 +6,9 @@ variable "region" {
   type        = string
 }
 
-variable "application_account_aws_access_key" {
-  description = "AWS Access Key"
-  type        = string
-  sensitive   = true
-}
-
-variable "application_account_aws_secret_key" {
-  description = "AWS Secret Access Key"
-  type        = string
-  sensitive   = true
-}
-
 ##
 # MongoDB Atlas related variables
 ##
-variable "mongodbatlas_public_key" {
-  description = "MongoDB Atlas public API key"
-  type        = string
-  sensitive   = true
-}
-
-variable "mongodbatlas_private_key" {
-  description = "MongoDB Atlas private API key"
-  type        = string
-  sensitive   = true
-}
-
 variable "mongodbatlas_project_id" {
   description = "MongoDB Atlas Project Identifier"
   type        = string
@@ -46,17 +22,6 @@ variable "mongodbatlas_free_tier" {
 ##
 # Ambar related variables
 ##
-variable "ambar_api_key" {
-  description = "API key for Ambar provider"
-  type        = string
-  sensitive   = true
-}
-
-variable "ambar_regional_endpoint" {
-  description = "The regional api endpoint for Ambar to use"
-  type        = string
-}
-
 variable "destination_endpoints_to_descriptions" {
   description = "List of destinations objects describing endpoint path and a description"
   type = list(object({
