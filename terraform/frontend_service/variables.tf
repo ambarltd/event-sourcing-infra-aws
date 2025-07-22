@@ -99,3 +99,11 @@ variable "hosted_zone_id" {
   description = "Route53 hosted zone ID for DNS validation"
   type        = string
 }
+
+variable "environment_variables" {
+  description = "Additional environment variables to configure for the service, beside base Ambar configs."
+  type = list(object({
+    name  = string
+    value = string
+  }))
+}

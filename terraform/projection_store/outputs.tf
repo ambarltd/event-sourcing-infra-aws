@@ -17,7 +17,7 @@ output "srv_connection_host" {
     mongodbatlas_cluster.free_projection_store[0].connection_strings[0].standard_srv,
     "/^mongodb\\+srv:\\/\\//",
     ""
-  ) : replace(
+    ) : replace(
     mongodbatlas_cluster.projection_store[0].connection_strings[0].standard_srv,
     "/^mongodb\\+srv:\\/\\//",
     ""
@@ -27,7 +27,7 @@ output "srv_connection_host" {
 
 output "cluster_id" {
   description = "The ID of the MongoDB Atlas cluster"
-  value       = var.mongodb_free_tier ? mongodbatlas_cluster.free_projection_store[0].cluster_id :  mongodbatlas_cluster.projection_store[0].cluster_id
+  value       = var.mongodb_free_tier ? mongodbatlas_cluster.free_projection_store[0].cluster_id : mongodbatlas_cluster.projection_store[0].cluster_id
 }
 
 output "cluster_name" {

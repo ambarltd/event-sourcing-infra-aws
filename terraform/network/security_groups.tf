@@ -43,7 +43,7 @@ resource "aws_security_group" "ecs" {
   }
 
   # User defined application ports
-  dynamic ingress {
+  dynamic "ingress" {
     for_each = var.application_ports
     content {
       from_port   = ingress.value

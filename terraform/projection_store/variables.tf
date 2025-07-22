@@ -20,6 +20,6 @@ variable "mongodb_version" {
 
 variable "mongodb_free_tier" {
   description = "MongoDB instance size (AWS): [M0, M10, M40]"
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }

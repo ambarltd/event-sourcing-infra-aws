@@ -12,7 +12,7 @@ variable "github_repository_with_read_write_access" {
 }
 
 variable "github_branch_with_read_write_access" {
-  type    = string
+  type = string
 }
 
 variable "ecr_repo_name" {

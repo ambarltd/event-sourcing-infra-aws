@@ -126,7 +126,7 @@ resource "aws_ecs_task_definition" "app" {
           protocol      = "tcp"
         }
       ]
-      environment = [
+      environment = concat([
         # Event Store Configuration - from RDS instance
         {
           name  = "EVENT_STORE_HOST"
@@ -250,10 +250,10 @@ resource "aws_ecs_task_definition" "app" {
         },
         # Other configs
         {
-          name = "FRONTEND_DOMAIN"
+          name  = "FRONTEND_DOMAIN"
           value = var.frontend_domain
         }
-      ]
+      ], var.environment_variables)
 
       logConfiguration = {
         logDriver = "awslogs"

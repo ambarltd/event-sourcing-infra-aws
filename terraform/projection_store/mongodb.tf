@@ -85,8 +85,8 @@ resource "mongodbatlas_cluster" "projection_store" {
 resource "mongodbatlas_cluster" "free_projection_store" {
   count = var.mongodb_free_tier ? 1 : 0
 
-  name                        = "${var.environment_name}-projection-store"
-  project_id                  = var.atlas_project_id
+  name       = "${var.environment_name}-projection-store"
+  project_id = var.atlas_project_id
 
   provider_instance_size_name = "M0"
   provider_name               = "TENANT"

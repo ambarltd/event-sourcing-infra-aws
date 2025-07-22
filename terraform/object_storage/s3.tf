@@ -69,7 +69,7 @@ resource "aws_iam_user" "s3_user" {
   path = "/system/"
 
   tags = {
-    Name    = "${var.environment_name}-s3-user"
+    Name = "${var.environment_name}-s3-user"
   }
 }
 

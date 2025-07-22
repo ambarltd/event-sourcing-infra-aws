@@ -162,6 +162,8 @@ module "backend_container_service" {
   # Monitoring
   log_retention_days = 90
 
+  environment_variables = var.backend_environment_variables
+
   depends_on = [
     module.network,
     module.event_store,
@@ -208,6 +210,8 @@ module "frontend_container_service" {
 
   # Monitoring
   log_retention_days = 90
+
+  environment_variables = var.frontend_environment_variables
 
   depends_on = [
     module.network,

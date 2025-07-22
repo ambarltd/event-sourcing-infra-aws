@@ -34,5 +34,5 @@ variable "private_subnet_cidrs" {
 
 variable "application_ports" {
   description = "List of ports on which traffic should be allowed. E.G. If a backend service is listening on 8080, and a frontend service is listening on 8443. Ports 80 and 443 are allowed by default, and http traffic is forwarded to https."
-  type = list(number)
+  type        = list(number)
 }

@@ -1,11 +1,11 @@
 locals {
   # Create domain set for easier processing
-  domain_set = toset(var.additional_domains)
+  domain_set  = toset(var.additional_domains)
   all_domains = concat(var.additional_domains, [var.frontend_domain])
 
   # Simple version - just remove leading * from each domain
   cleaned_domains = [for d in local.all_domains : trimprefix(d, "*")]
-  domains_string = join(",", local.cleaned_domains)
+  domains_string  = join(",", local.cleaned_domains)
 }
 
 # ECS Cluster
@@ -74,10 +74,10 @@ resource "aws_route53_record" "domain_cert_validation" {
     for dvo in flatten([
       for cert_key, cert in aws_acm_certificate.domain_certs : [
         for validation in cert.domain_validation_options : {
-          key    = "${cert_key}_${validation.domain_name}"
-          name   = validation.resource_record_name
-          record = validation.resource_record_value
-          type   = validation.resource_record_type
+          key      = "${cert_key}_${validation.domain_name}"
+          name     = validation.resource_record_name
+          record   = validation.resource_record_value
+          type     = validation.resource_record_type
           cert_key = cert_key
         }
       ]
@@ -200,7 +200,7 @@ resource "aws_ecs_task_definition" "app" {
           protocol      = "tcp"
         }
       ]
-      environment = [
+      environment = concat([
         {
           name  = "API_ADDRESS"
           value = "https://${var.backend_endpoint}"
@@ -224,8 +224,8 @@ resource "aws_ecs_task_definition" "app" {
         {
           name  = "LOAD_BALANCER"
           value = aws_lb.alb.dns_name
-        },
-      ]
+        }
+      ], var.environment_variables)
 
       logConfiguration = {
         logDriver = "awslogs"

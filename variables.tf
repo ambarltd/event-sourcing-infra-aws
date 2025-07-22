@@ -8,14 +8,14 @@ variable "region" {
 
 variable "application_account_aws_access_key" {
   description = "AWS Access Key"
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 
 variable "application_account_aws_secret_key" {
   description = "AWS Secret Access Key"
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 
 ##
@@ -35,12 +35,12 @@ variable "mongodbatlas_private_key" {
 
 variable "mongodbatlas_project_id" {
   description = "MongoDB Atlas Project Identifier"
-  type = string
+  type        = string
 }
 
 variable "mongodbatlas_free_tier" {
   description = "If the projection store should use the M0 or M10 cluster size"
-  type = bool
+  type        = bool
 }
 
 ##
@@ -54,7 +54,7 @@ variable "ambar_api_key" {
 
 variable "ambar_regional_endpoint" {
   description = "The regional api endpoint for Ambar to use"
-  type = string
+  type        = string
 }
 
 variable "destination_endpoints_to_descriptions" {
@@ -70,17 +70,17 @@ variable "destination_endpoints_to_descriptions" {
 ##
 variable "github_organization_with_read_write_access" {
   description = "The github organization name."
-  type = string
+  type        = string
 }
 
 variable "frontend_github_repository_with_read_write_access" {
   description = "The name of the github repo which contains the source for your frontend application which will use the assumable role to build and deploy the image to the elastica-container-registry for deployment."
-  type = string
+  type        = string
 }
 
 variable "frontend_github_branch_with_read_write_access" {
   description = "The name of the deployable github branch for your frontend application which will use the assumable role to build and deploy the image to the elastica-container-registry for deployment."
-  type    = string
+  type        = string
 }
 
 variable "frontend_image" {
@@ -120,17 +120,26 @@ variable "top_level_domain" {
 
 variable "frontend_application_domain_prefix" {
   description = "A prefix (if any) to apply to the domain for hosting the frontend portion of the application (E.G. 'app' for app.domain.com)"
-  type = string
+  type        = string
+}
+
+variable "frontend_environment_variables" {
+  description = "Additional environment variables to configure for the service, beside base Ambar configs. External API keys, app configs, etc"
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default = []
 }
 
 variable "hosted_zone_id" {
   description = "ID of the hosted zone for the domain"
-  type = string
+  type        = string
 }
 
 variable "hosted_zone_name" {
   description = "Name of the hosted zone for the domain"
-  type = string
+  type        = string
 }
 
 ##
@@ -138,12 +147,12 @@ variable "hosted_zone_name" {
 ##
 variable "backend_github_repository_with_read_write_access" {
   description = "The name of the github repo which contains the source for your backend application which will use the assumable role to build and deploy the image to the elastica-container-registry for deployment."
-  type = string
+  type        = string
 }
 
 variable "backend_github_branch_with_read_write_access" {
   description = "The name of the deployable github branch for your backend application which will use the assumable role to build and deploy the image to the elastica-container-registry for deployment."
-  type    = string
+  type        = string
 }
 
 variable "backend_image" {
@@ -153,7 +162,7 @@ variable "backend_image" {
 
 variable "backend_application_domain_prefix" {
   description = "A prefix (if any) to apply to the domain for hosting the backend portion of the application (E.G. 'api' for api.domain.com)"
-  type = string
+  type        = string
 }
 
 variable "backend_application_port" {
@@ -181,6 +190,15 @@ variable "from_email" {
   type        = string
 }
 
+variable "backend_environment_variables" {
+  description = "Additional environment variables to configure for the service, beside base Ambar configs. External API keys, app configs, etc"
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default = []
+}
+
 ##
 # Monitoring configuration variables
 ##
@@ -191,10 +209,10 @@ variable "emails_for_alerts" {
 
 variable "event_store_configured" {
   description = "If the application has been deployed at least once and successfully connected to and configured the event store for ambar use."
-  type = bool
+  type        = bool
 }
 
 variable "environment_name" {
   description = "Resource name prefix for easy identification and allowing multiple template deployments to one AWS account."
-  type = string
+  type        = string
 }

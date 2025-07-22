@@ -9,7 +9,7 @@ module "database" {
   source  = "terraform-aws-modules/rds-aurora/aws"
   version = "9.13.0"
 
-  engine         = "aurora-postgresql"
+  engine = "aurora-postgresql"
 
   engine_version = "15.10"
   # If set to true then AWS will automatically update the minor version (E.G. 15.11) and terraform plan / apply may show
@@ -51,12 +51,12 @@ module "database" {
   db_parameter_group_name         = aws_db_parameter_group.postgres.name
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.postgres.name
 
-  master_username                      = random_string.db_user.result
+  master_username = random_string.db_user.result
   # With password rotation enabled, we will need to ensure any other connections to the database are also rotated, and
   # we would need a mechanism to detect the rotation and update all consuming resources accordingly.
   manage_master_user_password_rotation = false
   manage_master_user_password          = false
-  master_password = random_password.db_pass.result
+  master_password                      = random_password.db_pass.result
 
   skip_final_snapshot = true
 }
