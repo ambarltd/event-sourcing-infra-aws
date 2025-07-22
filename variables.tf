@@ -68,6 +68,21 @@ variable "destination_endpoints_to_descriptions" {
 ##
 # Frontend configuration variables
 ##
+variable "github_organization_with_read_write_access" {
+  description = "The github organization name."
+  type = string
+}
+
+variable "frontend_github_repository_with_read_write_access" {
+  description = "The name of the github repo which contains the source for your frontend application which will use the assumable role to build and deploy the image to the elastica-container-registry for deployment."
+  type = string
+}
+
+variable "frontend_github_branch_with_read_write_access" {
+  description = "The name of the deployable github branch for your frontend application which will use the assumable role to build and deploy the image to the elastica-container-registry for deployment."
+  type    = string
+}
+
 variable "frontend_image" {
   description = "Frontend container image"
   type        = string
@@ -121,6 +136,16 @@ variable "hosted_zone_name" {
 ##
 # Backend configuration variables
 ##
+variable "backend_github_repository_with_read_write_access" {
+  description = "The name of the github repo which contains the source for your backend application which will use the assumable role to build and deploy the image to the elastica-container-registry for deployment."
+  type = string
+}
+
+variable "backend_github_branch_with_read_write_access" {
+  description = "The name of the deployable github branch for your backend application which will use the assumable role to build and deploy the image to the elastica-container-registry for deployment."
+  type    = string
+}
+
 variable "backend_image" {
   description = "Backend container image"
   type        = string

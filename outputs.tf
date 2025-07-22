@@ -19,7 +19,15 @@ output "frontend_ecr_repository_url" {
   value       = module.frontend_image_registry.ecr_repository_repository_url
 }
 
+output "frontend_github_assumable_role_read_write" {
+  value = module.frontend_image_registry.github_assumable_role_read_write
+}
+
 output "backend_ecr_repository_url" {
   description = "ECR repository URL for backend container images"
   value       = module.backend_image_registry.ecr_repository_repository_url
+}
+
+output "backend_github_assumable_role_read_write" {
+  value = module.backend_image_registry.github_assumable_role_read_write
 }
