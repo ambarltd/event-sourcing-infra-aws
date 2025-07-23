@@ -61,7 +61,7 @@ module "backend_image_registry" {
   source = "./terraform/image_registry"
 
   environment_name                           = var.environment_name
-  ecr_repo_name                              = "${var.environment_name}-event-sourcing-app-backend"
+  ecr_repo_name                              = "event-sourcing-app-backend"
   github_organization_with_read_write_access = var.github_organization_with_read_write_access
   github_repository_with_read_write_access   = var.backend_github_repository_with_read_write_access
   github_branch_with_read_write_access       = var.backend_github_branch_with_read_write_access
@@ -71,7 +71,7 @@ module "frontend_image_registry" {
   source = "./terraform/image_registry"
 
   environment_name                           = var.environment_name
-  ecr_repo_name                              = "${var.environment_name}-event-sourcing-app-frontend"
+  ecr_repo_name                              = "event-sourcing-app-frontend"
   github_organization_with_read_write_access = var.github_organization_with_read_write_access
   github_repository_with_read_write_access   = var.frontend_github_repository_with_read_write_access
   github_branch_with_read_write_access       = var.frontend_github_branch_with_read_write_access
