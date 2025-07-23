@@ -1,7 +1,7 @@
 # Database user
 # MongoDB Atlas Database Username
-resource "random_string" "mongodb_user" {
-  length  = 12
+resource "random_string" "mongodb_username" {
+  length  = 14
   special = false
   upper   = true
   lower   = true
@@ -9,7 +9,7 @@ resource "random_string" "mongodb_user" {
 }
 
 # MongoDB Atlas Database Password
-resource "random_password" "mongodb_pass" {
+resource "random_password" "mongodb_password" {
   length  = 20
   special = true
   upper   = true
@@ -22,8 +22,8 @@ resource "random_password" "mongodb_pass" {
 }
 
 resource "mongodbatlas_database_user" "projection_store_user" {
-  username           = random_string.mongodb_user.result
-  password           = random_password.mongodb_pass.result
+  username           = random_string.mongodb_username.result
+  password           = random_password.mongodb_password.result
   project_id         = var.atlas_project_id
   auth_database_name = "admin"
 

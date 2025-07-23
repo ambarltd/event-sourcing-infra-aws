@@ -36,10 +36,10 @@ output "cluster_name" {
 }
 
 output "projection_store_user" {
-  value = random_string.mongodb_user.result
+  value = random_string.mongodb_username.result
 }
 
 output "projection_store_password" {
   sensitive = true
-  value     = random_password.mongodb_pass.result
+  value     = random_password.mongodb_password.result
 }
