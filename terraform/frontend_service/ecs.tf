@@ -2,6 +2,10 @@ locals {
   # Create domain set for easier processing
   domain_set  = toset(var.additional_domains)
   all_domains = concat(var.additional_domains, [var.frontend_domain])
+
+  # Simple version - just remove leading * from each domain
+#  cleaned_domains = [for d in local.all_domains : trimprefix(d, "*")]
+#  domains_string  = join(",", local.cleaned_domains)
 }
 
 # ECS Cluster
@@ -215,7 +219,7 @@ resource "aws_ecs_task_definition" "app" {
         },
         {
           name  = "DOMAIN"
-          value = local.all_domains
+          value = join(",", local.all_domains)
         },
         {
           name  = "LOAD_BALANCER"
