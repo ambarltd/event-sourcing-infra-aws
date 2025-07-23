@@ -96,8 +96,8 @@ module "ambar" {
   data_source_host     = module.event_store.event_store_endpoint
   data_source_user     = module.event_store.event_store_user
   data_source_password = module.event_store.event_store_password
-  ambar_password       = module.backend_container_service.ambar_un
-  ambar_username       = module.backend_container_service.ambar_pw
+  ambar_password       = module.backend_container_service.ambar_pw
+  ambar_username       = module.backend_container_service.ambar_un
 
   data_destination_domain = local.backend_domain
 
