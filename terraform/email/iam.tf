@@ -11,6 +11,9 @@ locals {
   ]
 
   from_addresses = length(var.allowed_from_addresses) > 0 ? var.allowed_from_addresses : local.default_from_addresses
+  
+  # Use eu-west-1 for SES when in ap-southeast-5 (Jakarta) as SES is not available there
+  ses_region = data.aws_region.current.name == "ap-southeast-5" ? "eu-west-1" : data.aws_region.current.name
 }
 
 # IAM Role for SES Email Sending

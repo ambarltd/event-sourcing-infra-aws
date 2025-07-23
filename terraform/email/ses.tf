@@ -1,11 +1,13 @@
 # SES Domain Identity (if using SES)
 resource "aws_ses_domain_identity" "main" {
-  domain = var.route53_zone_name
+  provider = aws.ses
+  domain   = var.route53_zone_name
 }
 
 # SES DKIM tokens
 resource "aws_ses_domain_dkim" "main" {
-  domain = aws_ses_domain_identity.main.domain
+  provider = aws.ses
+  domain   = aws_ses_domain_identity.main.domain
 }
 
 # SES Domain verification record

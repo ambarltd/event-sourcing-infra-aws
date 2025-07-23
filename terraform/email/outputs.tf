@@ -27,7 +27,7 @@ output "allowed_from_addresses" {
 # SMTP Configuration outputs
 output "smtp_host" {
   description = "SMTP host for SES email sending"
-  value       = "email-smtp.${data.aws_region.current.name}.amazonaws.com"
+  value       = "email-smtp.${local.ses_region}.amazonaws.com"
 }
 
 output "smtp_port" {
