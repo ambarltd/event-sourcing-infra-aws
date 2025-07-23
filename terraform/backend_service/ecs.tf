@@ -50,9 +50,9 @@ resource "aws_acm_certificate_validation" "nlb_cert_validation" {
 # Network Load Balancer
 resource "aws_lb" "nlb" {
   name               = "${var.environment_name}-backend-nlb"
-  internal           = true
+  internal           = false
   load_balancer_type = "network"
-  subnets            = var.private_subnet_ids
+  subnets            = var.public_subnet_ids
 
   enable_deletion_protection = true
 }
