@@ -24,13 +24,3 @@ terraform {
     }
   }
 }
-
-provider "aws" {
-  alias  = "main"
-  region = var.region
-}
-
-provider "aws" {
-  alias  = "alt_region"
-  region = var.region == "ap-southeast-5" ? "eu-west-1" : var.region
-}
