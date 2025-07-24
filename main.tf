@@ -3,8 +3,6 @@ locals {
   frontend_domain = var.frontend_application_domain_prefix != "" ? "${var.frontend_application_domain_prefix}.${var.top_level_domain}" : var.top_level_domain
 }
 
-
-# Email Module
 module "email" {
   source = "./terraform/email"
 
@@ -19,7 +17,6 @@ module "email" {
   }
 }
 
-# Network Module
 module "network" {
   source = "./terraform/network"
 
@@ -36,7 +33,6 @@ module "network" {
   application_ports = [var.frontend_application_port, var.backend_application_port]
 }
 
-# Event Store Module
 module "event_store" {
   source = "./terraform/event_store"
 
@@ -47,7 +43,6 @@ module "event_store" {
   depends_on = [module.network]
 }
 
-# Blob Storage Module
 module "object_storage" {
   source = "./terraform/object_storage"
 
@@ -60,7 +55,6 @@ module "object_storage" {
   noncurrent_version_expiration_days = 90
 }
 
-# Image Registry Modules
 module "backend_image_registry" {
   source = "./terraform/image_registry"
 
@@ -114,8 +108,6 @@ module "ambar" {
   ]
 }
 
-# Todo:
-# Flag for public vs private subnets (Should API's be available generally, or just in VPC)
 module "backend_container_service" {
   source = "./terraform/backend_service"
 
@@ -223,4 +215,3 @@ module "frontend_container_service" {
     module.backend_container_service
   ]
 }
-

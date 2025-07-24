@@ -48,11 +48,6 @@ resource "aws_iam_policy" "email_sender" {
           "ses:GetAccountSendingEnabled"
         ]
         Resource = "*"
-        Condition = {
-          StringEquals = {
-            "ses:FromAddress" = var.allowed_from_addresses
-          }
-        }
       }
     ]
   })
