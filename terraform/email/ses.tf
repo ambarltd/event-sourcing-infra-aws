@@ -6,7 +6,7 @@ data "aws_region" "current" {
 # SES Domain Identity using SESv2 (recommended)
 resource "aws_sesv2_email_identity" "main" {
   provider       = aws.ses
-  email_identity = var.route53_zone_name
+  email_identity = var.domain_name
 
   dkim_signing_attributes {
     next_signing_key_length = "RSA_2048_BIT"
