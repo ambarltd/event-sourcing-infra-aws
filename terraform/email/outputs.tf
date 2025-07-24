@@ -43,7 +43,7 @@ output "email_user_instance_profile_arn" {
 # SMTP Configuration outputs
 output "smtp_host" {
   description = "SMTP host for SES email sending"
-  value       = "email-smtp.${local.ses_region}.amazonaws.com"
+  value       = "email-smtp.${data.aws_region.current.name}.amazonaws.com"
 }
 
 output "smtp_port" {
