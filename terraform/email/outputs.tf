@@ -49,7 +49,7 @@ output "smtp_host" {
 
 output "smtp_port" {
   description = "SMTP port for SES email sending (587 for TLS)"
-  value       = "587"
+  value       = "465"
 }
 
 # SMTP User credentials
