@@ -64,11 +64,6 @@ resource "aws_route53_record" "ses_mail_from_spf" {
   records = ["v=spf1 include:amazonses.com ~all"]
 }
 
-# Data source to get current region
-data "aws_region" "current" {
-  provider = aws.ses
-}
-
 # Outputs for verification
 output "ses_domain_identity_arn" {
   description = "ARN of the SES domain identity"
