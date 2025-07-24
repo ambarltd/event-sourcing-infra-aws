@@ -13,6 +13,10 @@ module "email" {
   route53_zone_name      = var.hosted_zone_name
   route53_zone_id        = var.hosted_zone_id
   allowed_from_addresses = ["${var.from_email}@${var.top_level_domain}"]
+
+  providers = {
+    aws = aws.ses
+  }
 }
 
 # Network Module

@@ -20,3 +20,8 @@ terraform {
     }
   }
 }
+
+provider "aws" {
+  alias  = "ses"
+  region = var.region == "ap-southeast-5" ? "eu-west-1" : var.region
+}
