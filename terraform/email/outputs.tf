@@ -19,10 +19,6 @@ output "email_user_instance_profile_arn" {
   value       = aws_iam_instance_profile.email_user.arn
 }
 
-output "allowed_from_addresses" {
-  description = "List of allowed 'from' email addresses for SES sending"
-  value       = local.from_addresses
-}
 
 # SMTP Configuration outputs
 output "smtp_host" {

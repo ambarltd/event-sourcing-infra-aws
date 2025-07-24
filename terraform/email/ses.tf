@@ -14,7 +14,7 @@ resource "aws_sesv2_configuration_set" "main" {
   configuration_set_name = "${replace(var.route53_zone_name, ".", "-")}-config-set"
 
   delivery_options {
-    tls_policy = "Require"
+    tls_policy = "REQUIRE"
   }
 }
 
@@ -43,7 +43,7 @@ resource "aws_sesv2_email_identity_mail_from_attributes" "main" {
   email_identity   = aws_sesv2_email_identity.main.email_identity
   mail_from_domain = "mail.${var.route53_zone_name}"
 
-  behavior_on_mx_failure = "UseDefaultValue"
+  behavior_on_mx_failure = "USE_DEFAULT_VALUE"
 }
 
 # MX record for custom MAIL FROM domain
