@@ -15,7 +15,7 @@ module "email" {
   allowed_from_addresses = ["${var.from_email}@${var.top_level_domain}"]
 
   providers = {
-    aws = aws.ses
+    aws.ses = aws.ses
   }
 }
 
@@ -155,10 +155,10 @@ module "backend_container_service" {
   mongodb_password = module.projection_store.projection_store_password
 
   # SMTP Configuration
-  smtp_host       = "" #module.email.smtp_host
-  smtp_port       = "" #module.email.smtp_port
-  smtp_username   = "" #module.email.smtp_username
-  smtp_password   = "" #module.email.smtp_password
+  smtp_host       = module.email.smtp_host
+  smtp_port       = module.email.smtp_port
+  smtp_username   = module.email.smtp_username
+  smtp_password   = module.email.smtp_password
   smtp_from_email = "${var.from_email}@${var.top_level_domain}"
 
   desired_count = var.backend_instance_count
@@ -174,7 +174,7 @@ module "backend_container_service" {
     module.object_storage,
     module.backend_image_registry,
     module.projection_store,
-    #module.email
+    module.email
   ]
 }
 

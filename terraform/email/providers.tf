@@ -7,9 +7,3 @@ terraform {
     }
   }
 }
-
-# Provider for SES operations - uses eu-west-1 when current region is ap-southeast-5
-provider "aws" {
-  alias  = "ses"
-  region = local.ses_region
-}
