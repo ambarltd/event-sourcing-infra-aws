@@ -1,10 +1,10 @@
 ## Get current region for SMTP host
-#data "aws_region" "current" {}
+data "aws_region" "current" {}
 #
-#locals {
-#  # Use eu-west-1 for SES when in ap-southeast-5 (Jakarta) as SES is not available there
-#  ses_region = data.aws_region.current.name == "ap-southeast-5" ? "eu-west-1" : data.aws_region.current.name
-#}
+locals {
+  # Use eu-west-1 for SES when in ap-southeast-5 (Jakarta) as SES is not available there
+  ses_region = data.aws_region.current.name == "ap-southeast-5" ? "eu-west-1" : data.aws_region.current.name
+}
 #
 ## IAM Role for SES Email Sending
 #resource "aws_iam_role" "email_user" {
