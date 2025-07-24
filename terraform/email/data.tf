@@ -1,3 +1,3 @@
 data "aws_region" "current" {
-  provider = aws.ses
+  provider = aws.alt_region
 }

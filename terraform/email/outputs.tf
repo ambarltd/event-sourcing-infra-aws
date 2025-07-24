@@ -40,6 +40,7 @@ output "email_user_instance_profile_arn" {
   value       = aws_iam_instance_profile.email_user.arn
 }
 
+
 # SMTP Configuration outputs
 output "smtp_host" {
   description = "SMTP host for SES email sending"
@@ -48,7 +49,7 @@ output "smtp_host" {
 
 output "smtp_port" {
   description = "SMTP port for SES email sending (587 for TLS)"
-  value       = "465"
+  value       = "587"
 }
 
 # SMTP User credentials

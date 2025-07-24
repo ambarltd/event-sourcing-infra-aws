@@ -13,12 +13,17 @@ module "email" {
   allowed_from_addresses = ["${var.from_email}@${var.top_level_domain}"]
 
   providers = {
-    aws.ses = aws.ses
+    aws = aws.main,
+    aws.alt_region = aws.alt_region
   }
 }
 
 module "network" {
   source = "./terraform/network"
+
+  providers = {
+    aws = aws.main
+  }
 
   environment_name = var.environment_name
   region           = var.region
@@ -36,6 +41,10 @@ module "network" {
 module "event_store" {
   source = "./terraform/event_store"
 
+  providers = {
+    aws = aws.main
+  }
+
   environment_name    = var.environment_name
   vpc_id              = module.network.vpc_id
   database_subnet_ids = module.network.public_subnet_ids
@@ -45,6 +54,10 @@ module "event_store" {
 
 module "object_storage" {
   source = "./terraform/object_storage"
+
+  providers = {
+    aws = aws.main
+  }
 
   environment_name     = var.environment_name
   frontend_cors_domain = var.top_level_domain
@@ -58,6 +71,10 @@ module "object_storage" {
 module "backend_image_registry" {
   source = "./terraform/image_registry"
 
+  providers = {
+    aws = aws.main
+  }
+
   environment_name                           = var.environment_name
   ecr_repo_name                              = "event-sourcing-app-backend"
   github_organization_with_read_write_access = var.github_organization_with_read_write_access
@@ -67,6 +84,10 @@ module "backend_image_registry" {
 
 module "frontend_image_registry" {
   source = "./terraform/image_registry"
+
+  providers = {
+    aws = aws.main
+  }
 
   environment_name                           = var.environment_name
   ecr_repo_name                              = "event-sourcing-app-frontend"
@@ -110,6 +131,10 @@ module "ambar" {
 
 module "backend_container_service" {
   source = "./terraform/backend_service"
+
+  providers = {
+    aws = aws.main
+  }
 
   environment_name      = var.environment_name
   region                = var.region
@@ -173,6 +198,10 @@ module "backend_container_service" {
 module "monitoring" {
   source = "./terraform/monitoring"
 
+  providers = {
+    aws = aws.main
+  }
+
   environment_name        = var.environment_name
   emails_for_alerts       = var.emails_for_alerts
   backend_log_group_name  = module.backend_container_service.cloudwatch_log_group_name
@@ -180,8 +209,11 @@ module "monitoring" {
 }
 
 module "frontend_container_service" {
-
   source = "./terraform/frontend_service"
+
+  providers = {
+    aws = aws.main
+  }
 
   environment_name      = var.environment_name
   region                = var.region
