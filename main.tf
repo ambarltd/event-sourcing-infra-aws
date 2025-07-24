@@ -10,7 +10,7 @@ module "email" {
   domain_name            = var.top_level_domain
   route53_zone_name      = var.hosted_zone_name
   route53_zone_id        = var.hosted_zone_id
-  allowed_from_addresses = ["${var.from_email}@${var.top_level_domain}"]
+  allowed_from_address   = var.from_email
 
   providers = {
     aws = aws.main,
@@ -176,7 +176,7 @@ module "backend_container_service" {
   smtp_port       = module.email.smtp_port
   smtp_username   = module.email.smtp_username
   smtp_password   = module.email.smtp_password
-  smtp_from_email = "${var.from_email}@${var.top_level_domain}"
+  smtp_from_email = var.from_email
 
   desired_count = var.backend_instance_count
 

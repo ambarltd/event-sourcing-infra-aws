@@ -18,8 +18,7 @@ variable "route53_zone_id" {
   type        = string
 }
 
-variable "allowed_from_addresses" {
+variable "allowed_from_address" {
   description = "List of allowed 'from' email addresses for SES sending"
-  type        = list(string)
-  default     = []
+  type        = string
 }
