@@ -2,16 +2,6 @@
 data "aws_region" "current" {}
 
 locals {
-  # Some examples, and just in case.
-  default_from_addresses = [
-    "noreply@${var.domain_name}",
-    "no-reply@${var.domain_name}",
-    "notifications@${var.domain_name}",
-    "support@${var.domain_name}"
-  ]
-
-  from_addresses = length(var.allowed_from_addresses) > 0 ? var.allowed_from_addresses : local.default_from_addresses
-  
   # Use eu-west-1 for SES when in ap-southeast-5 (Jakarta) as SES is not available there
   ses_region = data.aws_region.current.name == "ap-southeast-5" ? "eu-west-1" : data.aws_region.current.name
 }
@@ -68,7 +58,7 @@ resource "aws_iam_policy" "email_sender" {
         Resource = "*"
         Condition = {
           StringEquals = {
-            "ses:FromAddress" = local.from_addresses
+            "ses:FromAddress" = var.allowed_from_addresses
           }
         }
       }
