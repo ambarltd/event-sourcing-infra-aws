@@ -87,6 +87,7 @@ variable "top_level_domain" {
 variable "frontend_application_domain_prefix" {
   description = "A prefix (if any) to apply to the domain for hosting the frontend portion of the application (E.G. 'app' for app.domain.com)"
   type        = string
+  default     = ""
 }
 
 variable "frontend_environment_variables" {
