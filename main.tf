@@ -3,20 +3,20 @@ locals {
   frontend_domain = var.frontend_application_domain_prefix != "" ? "${var.frontend_application_domain_prefix}.${var.top_level_domain}" : var.top_level_domain
 }
 
-module "email" {
-  source = "./terraform/email"
-
-  environment_name       = var.environment_name
-  domain_name            = var.top_level_domain
-  route53_zone_name      = var.hosted_zone_name
-  route53_zone_id        = var.hosted_zone_id
-  allowed_from_address   = var.from_email
-
-  providers = {
-    aws = aws.main,
-    aws.alt_region = aws.alt_region
-  }
-}
+#module "email" {
+#  source = "./terraform/email"
+#
+#  environment_name       = var.environment_name
+#  domain_name            = var.top_level_domain
+#  route53_zone_name      = var.hosted_zone_name
+#  route53_zone_id        = var.hosted_zone_id
+#  allowed_from_address   = var.from_email
+#
+#  providers = {
+#    aws = aws.main,
+#    aws.alt_region = aws.alt_region
+#  }
+#}
 
 module "network" {
   source = "./terraform/network"
@@ -174,10 +174,10 @@ module "backend_container_service" {
   mongodb_password = module.projection_store.projection_store_password
 
   # SMTP Configuration
-  smtp_host       = module.email.smtp_host
-  smtp_port       = module.email.smtp_port
-  smtp_username   = module.email.smtp_username
-  smtp_password   = module.email.smtp_password
+  smtp_host       = "" # module.email.smtp_host
+  smtp_port       = "" # module.email.smtp_port
+  smtp_username   = "" # module.email.smtp_username
+  smtp_password   = "" # module.email.smtp_password
   smtp_from_email = var.from_email
 
   # If no image supplied, then don't create any instances which will anyways just fail.
@@ -192,8 +192,7 @@ module "backend_container_service" {
     module.event_store,
     module.object_storage,
     module.backend_image_registry,
-    module.projection_store,
-    module.email
+    module.projection_store
   ]
 }
 
