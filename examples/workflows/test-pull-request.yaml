@@ -16,6 +16,7 @@ concurrency:
 jobs:
   Deploy:
     runs-on: ubuntu-latest
+    environment: Validate Terraform Plan
     name: Terraform Plan
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

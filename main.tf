@@ -109,7 +109,6 @@ module "projection_store" {
 }
 
 module "ambar" {
-  count  = var.event_store_configured ? 1 : 0
   source = "./terraform/ambar"
 
   data_source_host     = module.event_store.event_store_endpoint
@@ -117,6 +116,9 @@ module "ambar" {
   data_source_password = module.event_store.event_store_password
   ambar_password       = module.backend_container_service.ambar_pw
   ambar_username       = module.backend_container_service.ambar_un
+
+  // Only create the destinations once the backend application is deployed.
+  create_destinations = var.backend_image != ""
 
   data_destination_domain = local.backend_domain
 
@@ -178,9 +180,9 @@ module "backend_container_service" {
   smtp_password   = module.email.smtp_password
   smtp_from_email = var.from_email
 
-  desired_count = var.backend_instance_count
+  # If no image supplied, then don't create any instances which will anyways just fail.
+  desired_count = var.backend_image != "" ? var.backend_instance_count : 0
 
-  # Monitoring
   log_retention_days = 90
 
   environment_variables = var.backend_environment_variables
@@ -234,9 +236,9 @@ module "frontend_container_service" {
   container_cpu       = var.frontend_cpu_capacity
   container_memory    = var.frontend_mem_capacity
 
-  desired_count = var.frontend_instance_count
+  # If no image supplied, then don't create any instances which will anyways just fail.
+  desired_count = var.frontend_image != "" ? var.frontend_instance_count : 0
 
-  # Monitoring
   log_retention_days = 90
 
   environment_variables = var.frontend_environment_variables
