@@ -7,5 +7,5 @@ module "destinations" {
   ambar_username = var.ambar_username
   data_destination_domain = var.data_destination_domain
   destination_endpoints_to_descriptions = var.destination_endpoints_to_descriptions
-  filter_id = ambar_filter.all_events.id
+  filter_id = ambar_filter.all_events.resource_id
 }
