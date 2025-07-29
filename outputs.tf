@@ -31,10 +31,3 @@ output "backend_ecr_repository_url" {
 output "backend_github_assumable_role_read_write" {
   value = module.backend_image_registry.github_assumable_role_read_write
 }
-
-##
-# Debugging
-##
-output "ses_identity" {
-  value = module.email.ses_domain_identity_arn
-}
