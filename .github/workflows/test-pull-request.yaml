@@ -1,0 +1,59 @@
+name: Perform Terraform plan on Pull Requests
+
+on:
+  pull_request:
+    branches:
+      - none
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: TERRAFORM_PLAN_ONE_AT_A_TIME
+  cancel-in-progress: false
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    name: Terraform Plan
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<TBC>>:role/github-action-role
+          aws-region: TBC
+          role-session-name: GithubActionDeploySession
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build Terraform container
+        run: docker build -t ambar/terraform-runner ./examples
+
+      - name: Init Terraform
+        run: |
+          docker run --env AWS_ACCESS_KEY="${AWS_ACCESS_KEY_ID}" \
+          --env AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
+          --env AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN}" \
+          --mount "type=bind,source=${PWD}/examples,target=/var/examples" \
+          ambar/terraform-runner init -backend-config="bucket=todo" \
+          -backend-config="key=todo.tfstate" \
+          -backend-config="dynamodb_table=todo" \
+          -backend-config="region=todo"
+
+      - name: Terraform Plan
+        run: |
+          docker run --env AWS_ACCESS_KEY="${AWS_ACCESS_KEY_ID}" \
+          --env AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
+          --env AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN}" \
+          --mount "type=bind,source=${PWD}/examples,target=/var/examples" \
+          ambar/terraform-runner plan \
+          -var="atlas_project_id=${{ vars.STAGING_ATLAS_PROJECT_ID }}" \
+          -var="mongodbatlas_public_key=${{ vars.STAGING_MONGODBATLAS_PUBLIC_KEY }}" \
+          -var="mongodbatlas_private_key=${{ vars.STAGING_MONGODBATLAS_PRIVATE_KEY }}" \
+          -var="ambar_api_key=${{ vars.STAGING_AMBAR_API_KEY }}" \
+          -var="application_account_access_key=${{ secrets.GH_IAM_USER_AK }}" \
+          -var="application_account_secret_key=${{ secrets.GH_IAM_USER_SK }}"
