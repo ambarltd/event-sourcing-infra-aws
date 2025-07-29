@@ -1,5 +1,5 @@
 module "destinations" {
-  count = var.create_destinations
+  count = var.create_destinations ? 1 : 0
 
   source = "./destinations"
 
