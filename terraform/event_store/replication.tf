@@ -53,7 +53,7 @@ resource "postgresql_grant" "replication_event_store_select" {
   
   depends_on = [
     postgresql_role.ambar_replication,
-    postgresql_function_call.create_schema
+    null_resource.create_event_store_schema
   ]
 }
 
@@ -71,33 +71,32 @@ resource "postgresql_publication" "replication_publication" {
   publish_truncate = true
   
   depends_on = [
-    postgresql_function_call.create_schema,
+    null_resource.create_event_store_schema,
     postgresql_role.ambar_replication
   ]
 }
 
-# Create a replication slot for Ambar
-resource "postgresql_function" "create_replication_slot" {
-  name = "create_ambar_replication_slot"
-  returns = "void"
-  language = "plpgsql"
-  body = <<-EOF
-    BEGIN
-      -- Check if replication slot already exists
-      IF NOT EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'ambar_event_store_slot') THEN
-        -- Create logical replication slot
-        PERFORM pg_create_logical_replication_slot('ambar_event_store_slot', 'pgoutput');
-      END IF;
-    END;
-  EOF
+# Create a replication slot for Ambar using null_resource
+resource "null_resource" "create_replication_slot" {
+  triggers = {
+    publication_name = postgresql_publication.replication_publication.name
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOF
+      PGPASSWORD="${random_password.replication_password.result}" psql -h "${module.database.cluster_endpoint}" -p 5432 -U "${random_string.replication_user.result}" -d postgres -c "
+      -- Create logical replication slot if it doesn't exist
+      SELECT CASE 
+        WHEN NOT EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'ambar_event_store_slot') 
+        THEN pg_create_logical_replication_slot('ambar_event_store_slot', 'pgoutput')
+        ELSE NULL 
+      END;
+      "
+    EOF
+  }
 
   depends_on = [
-    postgresql_publication.replication_publication
+    postgresql_publication.replication_publication,
+    postgresql_role.ambar_replication
   ]
-}
-
-# Execute the replication slot creation
-resource "postgresql_function_call" "create_slot" {
-  function_name = postgresql_function.create_replication_slot.name
-  depends_on    = [postgresql_function.create_replication_slot]
 }
