@@ -30,6 +30,18 @@ resource "postgresql_role" "ambar_replication" {
   depends_on = [module.database]
 }
 
+# Grant CONNECT privilege on database (as in Java code)
+resource "postgresql_grant" "replication_database_connect" {
+  database    = "postgres"
+  role        = postgresql_role.ambar_replication.name
+  object_type = "database"
+  privileges  = ["CONNECT"]
+  
+  depends_on = [
+    postgresql_role.ambar_replication
+  ]
+}
+
 # Grant SELECT privileges on the event store table
 resource "postgresql_grant" "replication_event_store_select" {
   database    = "postgres"
@@ -41,24 +53,10 @@ resource "postgresql_grant" "replication_event_store_select" {
   
   depends_on = [
     postgresql_role.ambar_replication,
-    postgresql_table.event_store
+    postgresql_function_call.create_schema
   ]
 }
 
-# Grant SELECT privileges on the idempotent reactions table
-resource "postgresql_grant" "replication_idempotent_select" {
-  database    = "postgres"
-  role        = postgresql_role.ambar_replication.name
-  schema      = "public"
-  object_type = "table"
-  objects     = ["event_store_idempotent_reaction"]
-  privileges  = ["SELECT"]
-  
-  depends_on = [
-    postgresql_role.ambar_replication,
-    postgresql_table.event_store_idempotent_reaction
-  ]
-}
 
 # Create the replication publication
 resource "postgresql_publication" "replication_publication" {
@@ -73,7 +71,7 @@ resource "postgresql_publication" "replication_publication" {
   publish_truncate = true
   
   depends_on = [
-    postgresql_table.event_store,
+    postgresql_function_call.create_schema,
     postgresql_role.ambar_replication
   ]
 }

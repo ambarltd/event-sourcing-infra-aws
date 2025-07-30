@@ -172,28 +172,32 @@ The infrastructure automatically configures a complete PostgreSQL event store wi
 The event store module automatically creates:
 
 #### 1. Database Tables
-- **Events Table**: `event_store` with complete schema including:
+- **Events Table**: `event_store` with schema matching the Java application exactly:
   - `id` (BIGSERIAL, primary key) - Serial column for record ordering
-  - `event_id` (UUID) - Unique event identifier
-  - `event_name` (VARCHAR) - Event type name
-  - `aggregate_id` (UUID) - Aggregate identifier
-  - `aggregate_version` (INTEGER) - Version for optimistic concurrency
-  - `json_payload` (JSONB) - Event data
-  - `json_metadata` (JSONB) - Event metadata
-  - `recorded_on` (TIMESTAMP) - Event timestamp
-  - `causation_id` (UUID) - Causation tracking
-  - `correlation_id` (UUID) - Partitioning column for Ambar
-
-- **Idempotent Reactions Table**: `event_store_idempotent_reaction` for reaction deduplication
+  - `event_id` (TEXT, UNIQUE) - Unique event identifier
+  - `event_name` (TEXT) - Event type name
+  - `aggregate_id` (TEXT) - Aggregate identifier
+  - `aggregate_version` (BIGINT) - Version for optimistic concurrency
+  - `json_payload` (TEXT) - Event data as JSON string
+  - `json_metadata` (TEXT) - Event metadata as JSON string
+  - `recorded_on` (TEXT) - Event timestamp as string
+  - `causation_id` (TEXT) - Causation tracking
+  - `correlation_id` (TEXT) - Partitioning column for Ambar
 
 #### 2. Database Indexes and Constraints
-- Performance indexes on `aggregate_id`, `correlation_id`, and `recorded_on`
-- Unique constraint on `aggregate_id` + `aggregate_version` for optimistic concurrency
-- Indexes on idempotent reactions table for efficient lookups
+- **UNIQUE indexes** (matching Java application exactly):
+  - `event_store_idx_event_aggregate_id_version` on (aggregate_id, aggregate_version)
+  - `event_store_idx_event_id` on (event_id)
+- **Performance indexes**:
+  - `event_store_idx_event_causation_id` on (causation_id)
+  - `event_store_idx_event_correlation_id` on (correlation_id) 
+  - `event_store_idx_occurred_on` on (recorded_on)
+  - `event_store_idx_event_name` on (event_name)
 
 #### 3. Replication Configuration
 - **Replication User**: Automatically created with `REPLICATION` privilege
-- **SELECT Privileges**: Granted on all event store tables
+- **Database Privileges**: `CONNECT` privilege on database
+- **Table Privileges**: `SELECT` privilege on event store table
 - **Logical Replication Publication**: `replication_publication` configured for the events table
 - **Replication Slot**: `ambar_event_store_slot` created for reliable streaming
 
