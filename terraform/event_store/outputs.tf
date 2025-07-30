@@ -11,3 +11,14 @@ output "event_store_password" {
   sensitive = true
   value     = random_password.db_pass.result
 }
+
+# Replication user credentials for Ambar
+output "replication_user" {
+  sensitive = true
+  value     = random_string.replication_user.result
+}
+
+output "replication_password" {
+  sensitive = true
+  value     = random_password.replication_password.result
+}

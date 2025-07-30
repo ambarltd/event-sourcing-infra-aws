@@ -163,61 +163,90 @@ module "event_sourcing_app" {
 }
 ```
 
-## Event Store Configuration Requirements
+## Event Store Configuration
 
-**CRITICAL**: Before setting `event_store_configured = true`, your application must properly configure the PostgreSQL event store to work with Ambar's data streaming service. The infrastructure automatically provisions the database, but your application is responsible for the initial schema setup and configuration.
+The infrastructure automatically configures a complete PostgreSQL event store with all necessary components for Ambar's data streaming service.
 
-### Required Database Setup
+### Automatic Configuration
 
-Your application must create and configure the following components in the PostgreSQL database:
+The event store module automatically creates:
 
 #### 1. Database Tables
-- **Events Table**: Default name `event_store` (configurable via `EVENT_STORE_EVENTS_TABLE_NAME`)
-- **Idempotent Reactions Table**: Default name `event_store_idempotent_reaction` (configurable via `EVENT_STORE_IDEMPOTENT_REACTION_TABLE_NAME`)
+- **Events Table**: `event_store` with complete schema including:
+  - `id` (BIGSERIAL, primary key) - Serial column for record ordering
+  - `event_id` (UUID) - Unique event identifier
+  - `event_name` (VARCHAR) - Event type name
+  - `aggregate_id` (UUID) - Aggregate identifier
+  - `aggregate_version` (INTEGER) - Version for optimistic concurrency
+  - `json_payload` (JSONB) - Event data
+  - `json_metadata` (JSONB) - Event metadata
+  - `recorded_on` (TIMESTAMP) - Event timestamp
+  - `causation_id` (UUID) - Causation tracking
+  - `correlation_id` (UUID) - Partitioning column for Ambar
 
-#### 2. Database User with Replication Privileges
-Your application must create a dedicated database user with:
-- `REPLICATION` privilege (required for Ambar's logical replication)
-- `SELECT` privilege on all tables used as data sources
-- Credentials configured via:
-  - Username: `EVENT_STORE_CREATE_REPLICATION_USER_WITH_USERNAME`
-  - Password: `EVENT_STORE_CREATE_REPLICATION_USER_WITH_PASSWORD`
+- **Idempotent Reactions Table**: `event_store_idempotent_reaction` for reaction deduplication
 
-#### 3. Logical Replication Publication
-Create a PostgreSQL publication named `replication_publication` (configurable via `EVENT_STORE_CREATE_REPLICATION_PUBLICATION`) that includes your events table.
+#### 2. Database Indexes and Constraints
+- Performance indexes on `aggregate_id`, `correlation_id`, and `recorded_on`
+- Unique constraint on `aggregate_id` + `aggregate_version` for optimistic concurrency
+- Indexes on idempotent reactions table for efficient lookups
 
-```sql
--- Example SQL commands your application should execute:
-CREATE PUBLICATION replication_publication FOR TABLE event_store;
-CREATE USER ambar_replication WITH REPLICATION LOGIN PASSWORD 'your_password';
-GRANT SELECT ON event_store TO ambar_replication;
-GRANT SELECT ON event_store_idempotent_reaction TO ambar_replication;
+#### 3. Replication Configuration
+- **Replication User**: Automatically created with `REPLICATION` privilege
+- **SELECT Privileges**: Granted on all event store tables
+- **Logical Replication Publication**: `replication_publication` configured for the events table
+- **Replication Slot**: `ambar_event_store_slot` created for reliable streaming
+
+### Environment Variables
+
+Your application receives these automatically configured environment variables:
+
+#### Event Store Connection
+- `EVENT_STORE_HOST` - PostgreSQL endpoint
+- `EVENT_STORE_PORT` - Database port (5432)
+- `EVENT_STORE_DATABASE_NAME` - Database name (postgres)
+- `EVENT_STORE_USER` - Master database user
+- `EVENT_STORE_PASSWORD` - Master database password
+
+#### Event Store Schema
+- `EVENT_STORE_EVENTS_TABLE_NAME` - Events table name (event_store)
+- `EVENT_STORE_IDEMPOTENT_REACTION_TABLE_NAME` - Reactions table name (event_store_idempotent_reaction)
+
+#### Replication Configuration (For Reference)
+- `EVENT_STORE_CREATE_REPLICATION_USER_WITH_USERNAME` - Replication user (auto-generated)
+- `EVENT_STORE_CREATE_REPLICATION_USER_WITH_PASSWORD` - Replication password (auto-generated)
+- `EVENT_STORE_CREATE_REPLICATION_PUBLICATION` - Publication name (replication_publication)
+
+### Usage in Your Application
+
+Your application can immediately start using the event store:
+
+```javascript
+// Example: Save an event
+const event = {
+  event_id: uuidv4(),
+  event_name: 'UserCreated',
+  aggregate_id: userId,
+  aggregate_version: 1,
+  json_payload: JSON.stringify({ name, email }),
+  json_metadata: JSON.stringify({ userId: currentUser.id }),
+  correlation_id: correlationId
+};
+
+await eventStore.appendEvent(event);
 ```
 
-### PostgreSQL Version Requirements
-- PostgreSQL version 14 or higher is required
-- The RDS instance provisioned by this module meets these requirements
-
-### Table Schema Requirements
-Your events table must include:
-- A **serial column** for record ordering (sequence-based)
-- A **partitioning column** for data distribution
-- All columns that will be used as data sources must be defined in your Ambar configuration
-
 ### Deployment Process
-1. **First Deployment**: Set `event_store_configured = false`
-2. **Application Setup**: Deploy your application and let it configure the database schema, tables, users, and publications
-3. **Verify Configuration**: Ensure all tables, users, and publications are properly created
-4. **Enable Ambar**: Set `event_store_configured = true` and redeploy to create Ambar streaming resources
 
-### Troubleshooting
-If Ambar resources fail to deploy, verify:
-- Database tables exist with correct names
-- Replication user has proper privileges
-- Publications are created and include the correct tables
-- Your application can successfully connect to the database using the provided environment variables
+1. **Deploy Infrastructure**: The event store is automatically configured on first deployment
+2. **Deploy Application**: Your application can immediately use the pre-configured event store
+3. **Enable Ambar Streaming**: Set `create_destinations = true` in your backend image configuration to enable event streaming
 
-For detailed information about logical replication and publication configuration, refer to the [Ambar Documentation](https://docs.ambar.cloud/).
+### PostgreSQL Version
+- PostgreSQL 15.10 (Aurora) with logical replication enabled
+- All required parameters configured for Ambar compatibility
+
+For detailed information about using the event store in your application, refer to the [Ambar Documentation](https://docs.ambar.cloud/).
 
 ## Requirements
 
@@ -228,6 +257,7 @@ For detailed information about logical replication and publication configuration
 | [random](#requirement\_random) | >= 3.1.0  |
 | [mongodbatlas](#requirement\_mongodbatlas) | >= 1.4.0  |
 | [ambar](#requirement\_ambar) | >= 1.0.11 |
+| [postgresql](#requirement\_postgresql) | >= 1.15.0 |
 
 *AWS Version currently pinned due to issues with ap-southeast-5 and other regions.
 

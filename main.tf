@@ -112,8 +112,8 @@ module "ambar" {
   source = "./terraform/ambar"
 
   data_source_host     = module.event_store.event_store_endpoint
-  data_source_user     = module.event_store.event_store_user
-  data_source_password = module.event_store.event_store_password
+  data_source_user     = module.event_store.replication_user
+  data_source_password = module.event_store.replication_password
   ambar_password       = module.backend_container_service.ambar_pw
   ambar_username       = module.backend_container_service.ambar_un
 

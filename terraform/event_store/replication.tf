@@ -1,0 +1,105 @@
+# Generate credentials for the replication user
+resource "random_string" "replication_user" {
+  length  = 12
+  special = false
+  upper   = true
+  lower   = true
+  numeric = false
+}
+
+resource "random_password" "replication_password" {
+  length  = 16
+  special = true
+  upper   = true
+  lower   = true
+  numeric = true
+  
+  # Exclude characters that can cause issues in PostgreSQL or connection strings
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+# Create the replication user
+resource "postgresql_role" "ambar_replication" {
+  name     = random_string.replication_user.result
+  login    = true
+  password = random_password.replication_password.result
+  
+  # Required privileges for Ambar replication
+  replication = true
+  
+  depends_on = [module.database]
+}
+
+# Grant SELECT privileges on the event store table
+resource "postgresql_grant" "replication_event_store_select" {
+  database    = "postgres"
+  role        = postgresql_role.ambar_replication.name
+  schema      = "public"
+  object_type = "table"
+  objects     = ["event_store"]
+  privileges  = ["SELECT"]
+  
+  depends_on = [
+    postgresql_role.ambar_replication,
+    postgresql_table.event_store
+  ]
+}
+
+# Grant SELECT privileges on the idempotent reactions table
+resource "postgresql_grant" "replication_idempotent_select" {
+  database    = "postgres"
+  role        = postgresql_role.ambar_replication.name
+  schema      = "public"
+  object_type = "table"
+  objects     = ["event_store_idempotent_reaction"]
+  privileges  = ["SELECT"]
+  
+  depends_on = [
+    postgresql_role.ambar_replication,
+    postgresql_table.event_store_idempotent_reaction
+  ]
+}
+
+# Create the replication publication
+resource "postgresql_publication" "replication_publication" {
+  name   = "replication_publication"
+  owner  = module.database.cluster_master_username
+  tables = ["event_store"]
+  
+  # Publish all DML operations (default behavior)
+  publish_insert = true
+  publish_update = true
+  publish_delete = true
+  publish_truncate = true
+  
+  depends_on = [
+    postgresql_table.event_store,
+    postgresql_role.ambar_replication
+  ]
+}
+
+# Create a replication slot for Ambar
+resource "postgresql_function" "create_replication_slot" {
+  name = "create_ambar_replication_slot"
+  returns = "void"
+  language = "plpgsql"
+  body = <<-EOF
+    BEGIN
+      -- Check if replication slot already exists
+      IF NOT EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'ambar_event_store_slot') THEN
+        -- Create logical replication slot
+        PERFORM pg_create_logical_replication_slot('ambar_event_store_slot', 'pgoutput');
+      END IF;
+    END;
+  EOF
+
+  depends_on = [
+    postgresql_publication.replication_publication
+  ]
+}
+
+# Execute the replication slot creation
+resource "postgresql_function_call" "create_slot" {
+  function_name = postgresql_function.create_replication_slot.name
+  depends_on    = [postgresql_function.create_replication_slot]
+}
