@@ -48,8 +48,6 @@ module "event_store" {
   environment_name    = var.environment_name
   vpc_id              = module.network.vpc_id
   database_subnet_ids = module.network.public_subnet_ids
-
-  depends_on = [module.network]
 }
 
 module "object_storage" {
