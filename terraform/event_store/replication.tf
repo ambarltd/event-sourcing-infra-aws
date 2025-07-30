@@ -64,12 +64,6 @@ resource "postgresql_publication" "replication_publication" {
   owner  = module.database.cluster_master_username
   tables = ["event_store"]
   
-  # Publish all DML operations (default behavior)
-  publish_insert = true
-  publish_update = true
-  publish_delete = true
-  publish_truncate = true
-  
   depends_on = [
     null_resource.create_event_store_schema,
     postgresql_role.ambar_replication
