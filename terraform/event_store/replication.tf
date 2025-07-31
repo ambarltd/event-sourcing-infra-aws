@@ -1,6 +1,6 @@
 # Generate credentials for the replication user
 resource "random_string" "replication_user" {
-  length  = 12
+  length  = 10
   special = false
   upper   = true
   lower   = true
