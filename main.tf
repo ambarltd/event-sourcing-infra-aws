@@ -46,6 +46,7 @@ module "event_store" {
   }
 
   environment_name    = var.environment_name
+  region              = var.region
   vpc_id              = module.network.vpc_id
   database_subnet_ids = module.network.public_subnet_ids
 }

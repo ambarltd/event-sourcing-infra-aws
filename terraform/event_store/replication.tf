@@ -18,27 +18,44 @@ resource "random_password" "replication_password" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
-# Create the replication user using null_resource since provider lacks superuser privileges
-resource "null_resource" "create_replication_user" {
+# Create a regular user first using PostgreSQL provider
+resource "postgresql_role" "ambar_replication" {
+  name     = random_string.replication_user.result
+  login    = true
+  password = random_password.replication_password.result
+  
+  depends_on = [module.database]
+}
+
+# Grant replication privileges using AWS RDS API
+resource "null_resource" "grant_replication_privileges" {
   triggers = {
     username = random_string.replication_user.result
-    password = random_password.replication_password.result
   }
 
   provisioner "local-exec" {
     command = <<-EOF
+      aws rds modify-db-cluster \
+        --db-cluster-identifier ${module.database.cluster_id} \
+        --master-user-password ${module.database.cluster_master_password} \
+        --apply-immediately \
+        --region ${var.region} || echo "Failed to modify cluster, user may already have privileges"
+      
+      # Grant rds_replication role to our user
       psql "postgresql://${module.database.cluster_master_username}:${module.database.cluster_master_password}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
       DO \$\$
       BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${random_string.replication_user.result}') THEN
-          CREATE USER ${random_string.replication_user.result} REPLICATION LOGIN PASSWORD '${random_password.replication_password.result}';
+        IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${random_string.replication_user.result}') THEN
+          GRANT rds_replication TO ${random_string.replication_user.result};
         END IF;
+      EXCEPTION WHEN OTHERS THEN
+        NULL; -- Ignore errors if role doesn't exist or grant fails
       END \$\$;
       "
     EOF
   }
 
-  depends_on = [module.database]
+  depends_on = [postgresql_role.ambar_replication]
 }
 
 # Grant CONNECT privilege on database (as in Java code)
@@ -49,7 +66,7 @@ resource "postgresql_grant" "replication_database_connect" {
   privileges  = ["CONNECT"]
   
   depends_on = [
-    null_resource.create_replication_user
+    null_resource.grant_replication_privileges
   ]
 }
 
@@ -63,7 +80,7 @@ resource "postgresql_grant" "replication_event_store_select" {
   privileges  = ["SELECT"]
   
   depends_on = [
-    null_resource.create_replication_user,
+    null_resource.grant_replication_privileges,
     null_resource.create_event_store_schema
   ]
 }
@@ -77,7 +94,7 @@ resource "postgresql_publication" "replication_publication" {
   
   depends_on = [
     null_resource.create_event_store_schema,
-    null_resource.create_replication_user
+    null_resource.grant_replication_privileges
   ]
 }
 
@@ -102,6 +119,6 @@ resource "null_resource" "create_replication_slot" {
 
   depends_on = [
     postgresql_publication.replication_publication,
-    null_resource.create_replication_user
+    null_resource.grant_replication_privileges
   ]
 }

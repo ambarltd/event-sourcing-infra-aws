@@ -12,3 +12,8 @@ variable "database_subnet_ids" {
   description = "List of IDs of database subnets"
   type        = list(string)
 }
+
+variable "region" {
+  description = "AWS region"
+  type        = string
+}
