@@ -111,8 +111,8 @@ module "ambar" {
   source = "./terraform/ambar"
 
   data_source_host     = module.event_store.event_store_endpoint
-  data_source_user     = module.event_store.event_store_user
-  data_source_password = module.event_store.event_store_password
+  data_source_user     = module.event_store.replication_user
+  data_source_password = module.event_store.replication_password
   publication_name     = module.event_store.publication_name
 
   # Backend Application will create a un + pw for ambar to authenticate using
