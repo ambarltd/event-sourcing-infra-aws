@@ -1,4 +1,4 @@
-# Generate credentials for the replication user
+# Generate credentials for a replication user for ambar
 resource "random_string" "replication_user" {
   length  = 10
   special = false
@@ -88,7 +88,7 @@ resource "postgresql_grant" "replication_event_store_select" {
 
 # Create the replication publication
 resource "postgresql_publication" "replication_publication" {
-  name   = "replication_publication"
+  name   = "ambar_publication"
   owner  = module.database.cluster_master_username
   tables = ["event_store"]
   
