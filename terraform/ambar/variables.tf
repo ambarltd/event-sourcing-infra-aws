@@ -14,6 +14,11 @@ variable "data_source_host" {
   type        = string
 }
 
+variable "publication_name" {
+  description = "The name of the publication created on the database for Ambar to use"
+  type = string
+}
+
 variable "create_destinations" {
   description = "If the backend application is setup and healthy, Ambar DataDestinations should be created"
   type = bool

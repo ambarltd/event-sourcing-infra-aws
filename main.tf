@@ -113,10 +113,13 @@ module "ambar" {
   data_source_host     = module.event_store.event_store_endpoint
   data_source_user     = module.event_store.event_store_user
   data_source_password = module.event_store.event_store_password
+  publication_name     = module.event_store.publication_name
+
+  # Backend Application will create a un + pw for ambar to authenticate using
   ambar_password       = module.backend_container_service.ambar_pw
   ambar_username       = module.backend_container_service.ambar_un
 
-  // Only create the destinations once the backend application is deployed.
+  # Only create the destinations once the backend application is deployed.
   create_destinations = var.backend_image != ""
 
   data_destination_domain = local.backend_domain

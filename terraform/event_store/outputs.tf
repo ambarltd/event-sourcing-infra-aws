@@ -22,3 +22,7 @@ output "replication_password" {
   sensitive = true
   value     = random_password.replication_password.result
 }
+
+output "publication_name" {
+  value = postgresql_publication.replication_publication.name
+}
