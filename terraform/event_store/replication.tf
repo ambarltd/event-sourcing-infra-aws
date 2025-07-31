@@ -89,7 +89,6 @@ resource "postgresql_grant" "replication_event_store_select" {
 # Create the replication publication
 resource "postgresql_publication" "replication_publication" {
   name   = "ambar_publication"
-  owner  = random_string.db_user.result
   tables = ["event_store"]
   
   depends_on = [
