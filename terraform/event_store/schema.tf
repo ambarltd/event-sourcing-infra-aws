@@ -17,8 +17,8 @@ resource "null_resource" "create_event_store_schema" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      PGPASSWORD="${module.database.cluster_master_password}" psql -h "${module.database.cluster_endpoint}" -p 5432 -U "${module.database.cluster_master_username}" -d postgres -c "
-      -- Create the main event store table (matching Java schema exactly)
+      docker run --rm postgres:15 psql "postgresql://${module.database.cluster_master_username}:${module.database.cluster_master_password}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
+
       CREATE TABLE IF NOT EXISTS event_store (
         id BIGSERIAL NOT NULL,
         event_id TEXT NOT NULL UNIQUE,
@@ -32,8 +32,7 @@ resource "null_resource" "create_event_store_schema" {
         json_metadata TEXT NOT NULL,
         PRIMARY KEY (id)
       );
-      
-      -- Create indexes exactly as in Java code (ignore errors if they exist)
+
       CREATE UNIQUE INDEX IF NOT EXISTS event_store_idx_event_aggregate_id_version ON event_store(aggregate_id, aggregate_version);
       CREATE UNIQUE INDEX IF NOT EXISTS event_store_idx_event_id ON event_store(event_id);
       CREATE INDEX IF NOT EXISTS event_store_idx_event_causation_id ON event_store(causation_id);

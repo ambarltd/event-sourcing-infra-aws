@@ -18,41 +18,52 @@ resource "random_password" "replication_password" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
-# Create the replication user
-resource "postgresql_role" "ambar_replication" {
-  name     = random_string.replication_user.result
-  login    = true
-  password = random_password.replication_password.result
-  
-  # Required privileges for Ambar replication
-  replication = true
-  
+# Create the replication user using null_resource since provider lacks superuser privileges
+resource "null_resource" "create_replication_user" {
+  triggers = {
+    username = random_string.replication_user.result
+    password = random_password.replication_password.result
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOF
+      docker run --rm postgres:15 psql "postgresql://${module.database.cluster_master_username}:${module.database.cluster_master_password}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
+      DO \$\$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${random_string.replication_user.result}') THEN
+          CREATE USER ${random_string.replication_user.result} REPLICATION LOGIN PASSWORD '${random_password.replication_password.result}';
+        END IF;
+      END \$\$;
+      "
+    EOF
+  }
+
   depends_on = [module.database]
 }
 
 # Grant CONNECT privilege on database (as in Java code)
 resource "postgresql_grant" "replication_database_connect" {
   database    = "postgres"
-  role        = postgresql_role.ambar_replication.name
+  role        = random_string.replication_user.result
   object_type = "database"
   privileges  = ["CONNECT"]
   
   depends_on = [
-    postgresql_role.ambar_replication
+    null_resource.create_replication_user
   ]
 }
 
 # Grant SELECT privileges on the event store table
 resource "postgresql_grant" "replication_event_store_select" {
   database    = "postgres"
-  role        = postgresql_role.ambar_replication.name
+  role        = random_string.replication_user.result
   schema      = "public"
   object_type = "table"
   objects     = ["event_store"]
   privileges  = ["SELECT"]
   
   depends_on = [
-    postgresql_role.ambar_replication,
+    null_resource.create_replication_user,
     null_resource.create_event_store_schema
   ]
 }
@@ -66,7 +77,7 @@ resource "postgresql_publication" "replication_publication" {
   
   depends_on = [
     null_resource.create_event_store_schema,
-    postgresql_role.ambar_replication
+    null_resource.create_replication_user
   ]
 }
 
@@ -78,7 +89,7 @@ resource "null_resource" "create_replication_slot" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      PGPASSWORD="${random_password.replication_password.result}" psql -h "${module.database.cluster_endpoint}" -p 5432 -U "${random_string.replication_user.result}" -d postgres -c "
+      docker run --rm postgres:15 psql "postgresql://${random_string.replication_user.result}:${random_password.replication_password.result}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
       -- Create logical replication slot if it doesn't exist
       SELECT CASE 
         WHEN NOT EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'ambar_event_store_slot') 
@@ -91,6 +102,6 @@ resource "null_resource" "create_replication_slot" {
 
   depends_on = [
     postgresql_publication.replication_publication,
-    postgresql_role.ambar_replication
+    null_resource.create_replication_user
   ]
 }
