@@ -105,7 +105,7 @@ resource "null_resource" "create_replication_slot" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      psql "postgresql://${random_string.replication_user.result}:${random_password.replication_password.result}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
+      psql "postgresql://${random_string.db_user.result}:${random_password.db_pass.result}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
       -- Create logical replication slot if it doesn't exist
       SELECT CASE 
         WHEN NOT EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'ambar_event_store_slot') 
