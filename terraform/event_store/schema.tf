@@ -7,6 +7,7 @@ provider "postgresql" {
   password        = module.database.cluster_master_password
   sslmode         = "require"
   connect_timeout = 15
+  superuser       = false
 }
 
 # Create event store tables using null_resource with local-exec
