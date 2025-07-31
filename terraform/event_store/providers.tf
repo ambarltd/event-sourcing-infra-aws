@@ -16,3 +16,15 @@ terraform {
     }
   }
 }
+
+# PostgreSQL provider configuration
+provider "postgresql" {
+  host            = module.database.cluster_endpoint
+  port            = 5432
+  database        = "postgres"
+  username        = module.database.cluster_master_username
+  password        = module.database.cluster_master_password
+  sslmode         = "require"
+  connect_timeout = 15
+  superuser       = false
+}
