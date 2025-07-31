@@ -59,7 +59,7 @@ module "object_storage" {
   }
 
   environment_name     = var.environment_name
-  frontend_cors_domain = var.top_level_domain
+  frontend_cors_domain = local.frontend_domain
 
   # These configs get defaulted to these values, but we are bubbling them up to be explicit / for visibility
   enable_versioning                  = true
