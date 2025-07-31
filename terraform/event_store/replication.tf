@@ -95,6 +95,10 @@ resource "postgresql_publication" "replication_publication" {
     null_resource.create_event_store_schema,
     null_resource.grant_replication_privileges
   ]
+
+  lifecycle {
+    ignore_changes = [tables]
+  }
 }
 
 # Create a replication slot for Ambar using null_resource
