@@ -163,94 +163,150 @@ module "event_sourcing_app" {
 }
 ```
 
-## Event Store Configuration
+## Event Store Configuration & Ambar Integration
 
-The infrastructure automatically configures a complete PostgreSQL event store with all necessary components for Ambar's data streaming service.
+The infrastructure automatically configures a complete PostgreSQL event store with full Ambar integration for real-time event streaming. This provides a production-ready event sourcing foundation with zero manual configuration required.
 
 ### Automatic Configuration
 
-The event store module automatically creates:
+The event store module automatically creates and configures:
 
-#### 1. Database Tables
-- **Events Table**: `event_store` with schema matching the Java application exactly:
-  - `id` (BIGSERIAL, primary key) - Serial column for record ordering
+#### 1. Database Schema
+- **Events Table**: `event_store` with schema matching your Java application exactly:
+  - `id` (BIGSERIAL, primary key) - Serial column for Ambar record ordering
   - `event_id` (TEXT, UNIQUE) - Unique event identifier
-  - `event_name` (TEXT) - Event type name
-  - `aggregate_id` (TEXT) - Aggregate identifier
-  - `aggregate_version` (BIGINT) - Version for optimistic concurrency
+  - `event_name` (TEXT) - Event type name for filtering
+  - `aggregate_id` (TEXT) - Aggregate identifier for queries
+  - `aggregate_version` (BIGINT) - Version for optimistic concurrency control
   - `json_payload` (TEXT) - Event data as JSON string
   - `json_metadata` (TEXT) - Event metadata as JSON string
   - `recorded_on` (TEXT) - Event timestamp as string
-  - `causation_id` (TEXT) - Causation tracking
-  - `correlation_id` (TEXT) - Partitioning column for Ambar
+  - `causation_id` (TEXT) - Causation tracking for event chains
+  - `correlation_id` (TEXT) - **Partitioning column for Ambar streaming**
 
-#### 2. Database Indexes and Constraints
-- **UNIQUE indexes** (matching Java application exactly):
+#### 2. Performance Indexes & Constraints
+- **UNIQUE indexes** for data integrity:
   - `event_store_idx_event_aggregate_id_version` on (aggregate_id, aggregate_version)
   - `event_store_idx_event_id` on (event_id)
-- **Performance indexes**:
+- **Performance indexes** for fast queries:
   - `event_store_idx_event_causation_id` on (causation_id)
-  - `event_store_idx_event_correlation_id` on (correlation_id) 
+  - `event_store_idx_event_correlation_id` on (correlation_id) - **Critical for Ambar**
   - `event_store_idx_occurred_on` on (recorded_on)
   - `event_store_idx_event_name` on (event_name)
 
-#### 3. Replication Configuration
-- **Replication User**: Automatically created with `REPLICATION` privilege
-- **Database Privileges**: `CONNECT` privilege on database
-- **Table Privileges**: `SELECT` privilege on event store table
-- **Logical Replication Publication**: `replication_publication` configured for the events table
-- **Replication Slot**: `ambar_event_store_slot` created for reliable streaming
+#### 3. Ambar Streaming Configuration
+- **Replication User**: Dedicated user with `REPLICATION` privileges for Ambar
+- **Database Privileges**: `CONNECT` and `SELECT` privileges on event store
+- **Logical Replication Publication**: `ambar_publication` configured for streaming
+- **Replication Slot**: `ambar_event_store_slot` for reliable, ordered event delivery
+- **Data Source**: Automatically configured Ambar data source pointing to your event store
 
-### Environment Variables
+### Application Requirements
 
-Your application receives these automatically configured environment variables:
+To work correctly with the pre-configured event store and Ambar streaming, your application must:
 
-#### Event Store Connection
-- `EVENT_STORE_HOST` - PostgreSQL endpoint
-- `EVENT_STORE_PORT` - Database port (5432)
-- `EVENT_STORE_DATABASE_NAME` - Database name (postgres)
-- `EVENT_STORE_USER` - Master database user
-- `EVENT_STORE_PASSWORD` - Master database password
+#### 1. Follow the Exact Schema
+```javascript
+// ✅ Correct: Use the exact column names and data types
+const event = {
+  event_id: uuidv4(),                    // TEXT (unique)
+  event_name: 'UserCreated',             // TEXT 
+  aggregate_id: userId,                  // TEXT
+  aggregate_version: 1,                  // BIGINT (number)
+  json_payload: JSON.stringify(data),    // TEXT (JSON as string)
+  json_metadata: JSON.stringify(meta),   // TEXT (JSON as string)
+  recorded_on: new Date().toISOString(), // TEXT (ISO string)
+  causation_id: causationId,             // TEXT
+  correlation_id: correlationId          // TEXT (REQUIRED for Ambar)
+};
+```
 
-#### Event Store Schema
-- `EVENT_STORE_EVENTS_TABLE_NAME` - Events table name (event_store)
-- `EVENT_STORE_IDEMPOTENT_REACTION_TABLE_NAME` - Reactions table name (event_store_idempotent_reaction)
+#### 2. Ensure Correlation ID Consistency
+The `correlation_id` field is **critical for Ambar partitioning**:
+- **Must be consistent** for related events that should be processed in order
+- **Should be different** for events that can be processed in parallel
+- **Cannot be null** - Ambar uses this for data distribution
 
-#### Replication Configuration (For Reference)
-- `EVENT_STORE_CREATE_REPLICATION_USER_WITH_USERNAME` - Replication user (auto-generated)
-- `EVENT_STORE_CREATE_REPLICATION_USER_WITH_PASSWORD` - Replication password (auto-generated)
-- `EVENT_STORE_CREATE_REPLICATION_PUBLICATION` - Publication name (replication_publication)
+#### 3. Use Append-Only Pattern
+- **Never UPDATE or DELETE** events once written (Ambar requirement)
+- **Only INSERT** new events to maintain streaming consistency
+- Use **aggregate_version** for optimistic concurrency control
 
-### Usage in Your Application
-
-Your application can immediately start using the event store:
+#### 4. Handle Environment Variables
+Your application receives these automatically configured variables:
 
 ```javascript
-// Example: Save an event
-const event = {
-  event_id: uuidv4(),
-  event_name: 'UserCreated',
-  aggregate_id: userId,
-  aggregate_version: 1,
-  json_payload: JSON.stringify({ name, email }),
-  json_metadata: JSON.stringify({ userId: currentUser.id }),
-  correlation_id: correlationId
-};
+// Database connection
+const eventStore = new EventStore({
+  host: process.env.EVENT_STORE_HOST,
+  port: process.env.EVENT_STORE_PORT,
+  database: process.env.EVENT_STORE_DATABASE_NAME,
+  username: process.env.EVENT_STORE_USER,
+  password: process.env.EVENT_STORE_PASSWORD
+});
 
-await eventStore.appendEvent(event);
+// Table names (use these constants)
+const EVENTS_TABLE = process.env.EVENT_STORE_EVENTS_TABLE_NAME; // 'event_store'
+```
+
+### Real-Time Event Streaming
+
+Once configured, Ambar automatically streams events to your application endpoints:
+
+#### 1. Automatic Event Detection
+- **New events** in the `event_store` table are automatically detected
+- **Ordered delivery** based on the `id` column (serial)
+- **Partitioned delivery** based on `correlation_id` for parallel processing
+
+#### 2. Destination Endpoints
+Events are streamed to your configured endpoints:
+```javascript
+// Your application should handle these HTTP POST requests
+app.post('/projections/users', (req, res) => {
+  const { events } = req.body; // Array of new events
+  // Update your read models/projections
+});
+
+app.post('/reactions/notifications', (req, res) => {
+  const { events } = req.body; // Array of new events  
+  // Trigger side effects (emails, notifications, etc.)
+});
 ```
 
 ### Deployment Process
 
-1. **Deploy Infrastructure**: The event store is automatically configured on first deployment
-2. **Deploy Application**: Your application can immediately use the pre-configured event store
-3. **Enable Ambar Streaming**: Set `create_destinations = true` in your backend image configuration to enable event streaming
+1. **Deploy Infrastructure**: Event store and Ambar are automatically configured
+2. **Deploy Application**: Use provided environment variables to connect
+3. **Start Writing Events**: Events are immediately streamed to your endpoints
+4. **Monitor Streaming**: Use CloudWatch and Ambar monitoring for observability
 
-### PostgreSQL Version
-- PostgreSQL 15.10 (Aurora) with logical replication enabled
-- All required parameters configured for Ambar compatibility
+### Best Practices
 
-For detailed information about using the event store in your application, refer to the [Ambar Documentation](https://docs.ambar.cloud/).
+#### Event Design
+- **Include correlation_id** in every event for proper partitioning
+- **Use meaningful event_name** values for filtering and monitoring
+- **Store rich data** in json_payload for projection building
+- **Include causation_id** for tracing event chains
+
+#### Error Handling
+- **Handle duplicate events** (Ambar provides at-least-once delivery)
+- **Implement idempotency** in your event handlers
+- **Use exponential backoff** for transient failures
+
+#### Monitoring
+- **Monitor replication lag** via CloudWatch metrics
+- **Track event processing** in your application endpoints
+- **Set up alerts** for streaming failures
+
+### PostgreSQL Configuration
+- **Version**: PostgreSQL 15.10 (Aurora) with logical replication enabled
+- **Parameters**: All Ambar-required parameters automatically configured
+- **Security**: TLS encryption enforced, dedicated replication user
+- **Backup**: Automated backups and point-in-time recovery enabled
+
+The event store is production-ready and requires no manual configuration. Your application can immediately start writing events and receiving real-time streams through Ambar.
+
+For advanced configuration and troubleshooting, refer to the [Ambar Documentation](https://docs.ambar.cloud/).
 
 ## Requirements
 
