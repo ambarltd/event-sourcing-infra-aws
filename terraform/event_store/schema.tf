@@ -17,8 +17,7 @@ resource "null_resource" "create_event_store_schema" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      docker run --rm postgres:15 psql "postgresql://${module.database.cluster_master_username}:${module.database.cluster_master_password}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
-
+      psql "postgresql://${module.database.cluster_master_username}:${module.database.cluster_master_password}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
       CREATE TABLE IF NOT EXISTS event_store (
         id BIGSERIAL NOT NULL,
         event_id TEXT NOT NULL UNIQUE,

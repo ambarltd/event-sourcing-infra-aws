@@ -27,7 +27,7 @@ resource "null_resource" "create_replication_user" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      docker run --rm postgres:15 psql "postgresql://${module.database.cluster_master_username}:${module.database.cluster_master_password}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
+      psql "postgresql://${module.database.cluster_master_username}:${module.database.cluster_master_password}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
       DO \$\$
       BEGIN
         IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${random_string.replication_user.result}') THEN
@@ -89,7 +89,7 @@ resource "null_resource" "create_replication_slot" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      docker run --rm postgres:15 psql "postgresql://${random_string.replication_user.result}:${random_password.replication_password.result}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
+      psql "postgresql://${random_string.replication_user.result}:${random_password.replication_password.result}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
       -- Create logical replication slot if it doesn't exist
       SELECT CASE 
         WHEN NOT EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'ambar_event_store_slot') 
