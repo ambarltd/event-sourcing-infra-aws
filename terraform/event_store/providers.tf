@@ -18,13 +18,13 @@ terraform {
 }
 
 # PostgreSQL provider configuration
-provider "postgresql" {
-  host            = module.database.cluster_endpoint
-  port            = 5432
-  database        = "postgres"
-  username        = random_string.db_user.result
-  password        = random_password.db_pass.result
-  sslmode         = "require"
-  connect_timeout = 15
-  superuser       = false
-}
+#provider "postgresql" {
+#  host            = module.database.cluster_endpoint
+#  port            = 5432
+#  database        = "postgres"
+#  username        = random_string.db_user.result
+#  password        = random_password.db_pass.result
+#  sslmode         = "require"
+#  connect_timeout = 15
+#  superuser       = false
+#}
