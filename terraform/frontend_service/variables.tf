@@ -15,6 +15,7 @@ variable "frontend_domain" {
 }
 
 variable "backend_endpoint" {
+  description = "Domain endpoint of the backend API service for frontend API calls"
   type = string
 }
 

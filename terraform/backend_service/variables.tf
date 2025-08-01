@@ -184,10 +184,12 @@ variable "smtp_password" {
 
 # Other
 variable "frontend_domain" {
+  description = "Domain name of the frontend application for CORS configuration"
   type = string
 }
 
 variable "smtp_from_email" {
+  description = "Email address to use as the from address for outgoing emails"
   type = string
 }
 
@@ -206,6 +208,6 @@ variable "environment_variables" {
 }
 
 variable "publication_name" {
-  description = ""
+  description = "Name of the PostgreSQL replication publication for Ambar streaming"
   type = string
 }

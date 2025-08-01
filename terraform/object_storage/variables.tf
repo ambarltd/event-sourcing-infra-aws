@@ -22,5 +22,6 @@ variable "noncurrent_version_expiration_days" {
 }
 
 variable "frontend_cors_domain" {
+  description = "Frontend domain for CORS configuration on the S3 bucket"
   type = string
 }
