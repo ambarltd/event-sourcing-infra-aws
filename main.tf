@@ -175,6 +175,7 @@ module "backend_container_service" {
   event_store_port     = 5432
   event_store_username = module.event_store.event_store_user
   event_store_password = module.event_store.event_store_password
+  publication_name     = module.event_store.publication_name
 
   # MongoDB Projection Store Configuration
   mongodb_host     = module.projection_store.srv_connection_host

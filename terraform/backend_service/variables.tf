@@ -204,3 +204,8 @@ variable "environment_variables" {
     value = string
   }))
 }
+
+variable "publication_name" {
+  description = ""
+  type = string
+}

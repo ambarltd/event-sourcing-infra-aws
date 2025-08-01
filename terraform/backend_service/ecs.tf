@@ -166,7 +166,7 @@ resource "aws_ecs_task_definition" "app" {
         },
         {
           name  = "EVENT_STORE_CREATE_REPLICATION_PUBLICATION"
-          value = "replication_publication"
+          value = var.publication_name
         },
 
         # MongoDB Projection Store Configuration - from MongoDB Atlas

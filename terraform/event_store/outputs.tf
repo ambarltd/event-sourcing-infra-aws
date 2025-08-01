@@ -13,16 +13,16 @@ output "event_store_password" {
 }
 
 # Replication user credentials for Ambar
-#output "replication_user" {
-#  sensitive = true
-#  value     = random_string.replication_user.result
-#}
-#
-#output "replication_password" {
-#  sensitive = true
-#  value     = random_password.replication_password.result
-#}
-#
-#output "publication_name" {
-#  value = postgresql_publication.replication_publication.name
-#}
+output "replication_user" {
+  sensitive = true
+  value     = random_string.replication_user.result
+}
+
+output "replication_password" {
+  sensitive = true
+  value     = random_password.replication_password.result
+}
+
+output "publication_name" {
+  value = postgresql_publication.replication_publication.name
+}
