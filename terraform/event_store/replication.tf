@@ -100,28 +100,3 @@ resource "postgresql_publication" "replication_publication" {
     ignore_changes = [tables]
   }
 }
-
-# Create a replication slot for Ambar using null_resource
-resource "null_resource" "create_replication_slot" {
-  triggers = {
-    publication_name = postgresql_publication.replication_publication.name
-  }
-
-  provisioner "local-exec" {
-    command = <<-EOF
-      psql "postgresql://${random_string.db_user.result}:${random_password.db_pass.result}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
-      -- Create logical replication slot if it doesn't exist
-      SELECT CASE 
-        WHEN NOT EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'ambar_event_store_slot') 
-        THEN pg_create_logical_replication_slot('ambar_event_store_slot', 'pgoutput')
-        ELSE NULL 
-      END;
-      "
-    EOF
-  }
-
-  depends_on = [
-    postgresql_publication.replication_publication,
-    null_resource.grant_replication_privileges
-  ]
-}

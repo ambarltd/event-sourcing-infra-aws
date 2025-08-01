@@ -21,6 +21,11 @@ resource "null_resource" "create_event_store_schema" {
         PRIMARY KEY (id)
       );
 
+      CREATE TABLE IF NOT EXISTS event_store_idempotent_reaction (
+        event_id TEXT NOT NULL,
+        reaction_name TEXT NOT NULL,
+        PRIMARY KEY (event_id, reaction_name);
+
       CREATE UNIQUE INDEX IF NOT EXISTS event_store_idx_event_aggregate_id_version ON event_store(aggregate_id, aggregate_version);
       CREATE UNIQUE INDEX IF NOT EXISTS event_store_idx_event_id ON event_store(event_id);
       CREATE INDEX IF NOT EXISTS event_store_idx_event_causation_id ON event_store(causation_id);
