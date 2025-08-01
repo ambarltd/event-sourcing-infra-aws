@@ -37,8 +37,4 @@ resource "null_resource" "create_event_store_schema" {
   }
 
   depends_on = [module.event_store_database]
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
