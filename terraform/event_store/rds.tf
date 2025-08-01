@@ -4,8 +4,8 @@ resource "aws_db_subnet_group" "rds" {
   subnet_ids = var.database_subnet_ids
 }
 
-module "database" {
-  name    = "${var.environment_name}-postgres"
+module "event_store_database" {
+  name    = "${var.environment_name}-postgresql"
   source  = "terraform-aws-modules/rds-aurora/aws"
   version = "9.13.0"
 

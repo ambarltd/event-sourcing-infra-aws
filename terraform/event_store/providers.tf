@@ -19,7 +19,7 @@ terraform {
 
 # PostgreSQL provider configuration
 provider "postgresql" {
-  host            = module.database.cluster_endpoint
+  host            = module.event_store_database.cluster_endpoint
   port            = 5432
   database        = "postgres"
   username        = random_string.db_user.result

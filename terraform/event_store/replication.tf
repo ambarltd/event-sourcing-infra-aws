@@ -24,7 +24,7 @@ resource "postgresql_role" "ambar_replication" {
   login    = true
   password = random_password.replication_password.result
 
-  depends_on = [module.database]
+  depends_on = [module.event_store_database]
 
   lifecycle {
     ignore_changes = all
@@ -40,13 +40,13 @@ resource "null_resource" "grant_replication_privileges" {
   provisioner "local-exec" {
     command = <<-EOF
       aws rds modify-db-cluster \
-        --db-cluster-identifier ${module.database.cluster_id} \
-        --master-user-password ${module.database.cluster_master_password} \
+        --db-cluster-identifier ${module.event_store_database.cluster_id} \
+        --master-user-password ${module.event_store_database.cluster_master_password} \
         --apply-immediately \
         --region ${var.region} || echo "Failed to modify cluster, user may already have privileges"
 
       # Grant rds_replication role to our user
-      psql "postgresql://${module.database.cluster_master_username}:${module.database.cluster_master_password}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
+      psql "postgresql://${module.event_store_database.cluster_master_username}:${module.event_store_database.cluster_master_password}@${module.event_store_database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
       DO \$\$
       BEGIN
         IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${random_string.replication_user.result}') THEN
@@ -124,7 +124,7 @@ resource "null_resource" "create_replication_slot" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      psql "postgresql://${random_string.db_user.result}:${random_password.db_pass.result}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
+      psql "postgresql://${random_string.db_user.result}:${random_password.db_pass.result}@${module.event_store_database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
       -- Create logical replication slot if it doesn't exist
       SELECT CASE
         WHEN NOT EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'ambar_event_store_slot')

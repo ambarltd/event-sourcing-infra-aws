@@ -1,5 +1,5 @@
 output "event_store_endpoint" {
-  value = module.database.cluster_endpoint
+  value = module.event_store_database.cluster_endpoint
 }
 
 output "event_store_user" {

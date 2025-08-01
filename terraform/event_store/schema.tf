@@ -1,12 +1,12 @@
 # Create event store tables using null_resource with local-exec
 resource "null_resource" "create_event_store_schema" {
   triggers = {
-    database_endpoint = module.database.cluster_endpoint
+    database_endpoint = module.event_store_database.cluster_endpoint
   }
 
   provisioner "local-exec" {
     command = <<-EOF
-      psql "postgresql://${module.database.cluster_master_username}:${module.database.cluster_master_password}@${module.database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
+      psql "postgresql://${module.event_store_database.cluster_master_username}:${module.event_store_database.cluster_master_password}@${module.event_store_database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
       CREATE TABLE IF NOT EXISTS event_store (
         id BIGSERIAL NOT NULL,
         event_id TEXT NOT NULL UNIQUE,
@@ -36,7 +36,7 @@ resource "null_resource" "create_event_store_schema" {
     EOF
   }
 
-  depends_on = [module.database]
+  depends_on = [module.event_store_database]
 
   lifecycle {
     ignore_changes = all
