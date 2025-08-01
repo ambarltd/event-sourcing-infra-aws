@@ -60,10 +60,6 @@ resource "null_resource" "grant_replication_privileges" {
   }
 
   depends_on = [postgresql_role.ambar_replication]
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 # Grant CONNECT privilege on database (as in Java code)
@@ -76,10 +72,6 @@ resource "postgresql_grant" "replication_database_connect" {
   depends_on = [
     null_resource.grant_replication_privileges
   ]
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 # Grant SELECT privileges on the event store table
@@ -95,10 +87,6 @@ resource "postgresql_grant" "replication_event_store_select" {
     null_resource.grant_replication_privileges,
     null_resource.create_event_store_schema
   ]
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 
@@ -113,34 +101,6 @@ resource "postgresql_publication" "replication_publication" {
   ]
 
   lifecycle {
-    ignore_changes = all
-  }
-}
-
-resource "null_resource" "create_replication_slot" {
-  triggers = {
-    publication_name = postgresql_publication.replication_publication.name
-  }
-
-  provisioner "local-exec" {
-    command = <<-EOF
-      psql "postgresql://${random_string.db_user.result}:${random_password.db_pass.result}@${module.event_store_database.cluster_endpoint}:5432/postgres?sslmode=require" -c "
-      -- Create logical replication slot if it doesn't exist
-      SELECT CASE
-        WHEN NOT EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'ambar_event_store_slot')
-        THEN pg_create_logical_replication_slot('ambar_event_store_slot', 'pgoutput')
-        ELSE NULL
-      END;
-      "
-    EOF
-  }
-
-  depends_on = [
-    postgresql_publication.replication_publication,
-    null_resource.grant_replication_privileges
-  ]
-
-  lifecycle {
-    ignore_changes = all
+    ignore_changes = [tables]
   }
 }
