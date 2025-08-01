@@ -259,7 +259,7 @@ module "ambar" {
   data_source_host     = module.event_store.event_store_endpoint
   data_source_user     = module.event_store.event_store_user
   data_source_password = module.event_store.event_store_password
-  publication_name     = module.event_store.publication_name
+  publication_name     = "ambar_publication"
 
   # Backend application provides authentication credentials for Ambar
   ambar_password = module.backend_container_service.ambar_pw

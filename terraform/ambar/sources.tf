@@ -11,7 +11,7 @@ resource "ambar_data_source" "event_store" {
     "password" : var.data_source_password,
     "databaseName" : "postgres",
     "tableName" : "event_store",
-    "publicationName" : var.publication_name,
+    "publicationName" : "ambar_publication",
     "partitioningColumn" : "correlation_id",
     "serialColumn" : "id",
     # columns should include all columns to be read from the database
