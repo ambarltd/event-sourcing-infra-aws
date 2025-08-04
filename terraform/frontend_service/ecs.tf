@@ -2,10 +2,6 @@ locals {
   # Create domain set for easier processing
   domain_set  = toset(var.additional_domains)
   all_domains = concat(var.additional_domains, [var.frontend_domain])
-
-  # Simple version - just remove leading * from each domain
-#  cleaned_domains = [for d in local.all_domains : trimprefix(d, "*")]
-#  domains_string  = join(",", local.cleaned_domains)
 }
 
 # ECS Cluster
@@ -264,6 +260,21 @@ resource "aws_ecs_service" "app" {
 resource "aws_route53_record" "frontend" {
   zone_id = var.hosted_zone_id
   name    = var.frontend_domain
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.alb.dns_name
+    zone_id                = aws_lb.alb.zone_id
+    evaluate_target_health = true
+  }
+}
+
+# Route53 A Records for Additional Domains (alias to ALB)
+resource "aws_route53_record" "additional_domains" {
+  for_each = local.domain_set
+
+  zone_id = var.hosted_zone_id
+  name    = each.value
   type    = "A"
 
   alias {
